@@ -38,32 +38,31 @@ const setupSockets = (ioServer) => {
 
       // send back that the players have joined with the list of hashes
       io.sockets.in(`room${nextRoom}`).emit('joined', {
-        hash: hash,
+        hash,
         room: `room${nextRoom}`,
         playerCount: currentRoomCount,
         primaryPotato: currentRoomCount,
       });
-      
+
       if (!(currentRoomCount < 3)) {
         hashList = {};
         currentRoomCount = 0;
         nextRoom++;
-      } 
+      }
     });
-    
+
     socket.on('pass', (data) => {
       let num = data.myNum;
       num++;
-      if(num > 3) num = 1;
-      let nextPotatoCarrier = num;
-      
-      io.sockets.in(data.room).emit('passingToNext', { hash: data.hash, next: nextPotatoCarrier, });
+      if (num > 3) num = 1;
+      const nextPotatoCarrier = num;
+
+      io.sockets.in(data.room).emit('passingToNext', { hash: data.hash, next: nextPotatoCarrier });
     });
-    
+
     socket.on('fail', (data) => {
       io.sockets.in(data.room).emit('endingGame', { hash: data.hash });
     });
-    
   });
 };
 
