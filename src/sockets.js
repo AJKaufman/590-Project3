@@ -33,7 +33,7 @@ const setupSockets = (ioServer) => {
       const idString = `${socket.id}${new Date().getTime()}`;
       const hash = xxh.h32(idString, 0xCAFEBABE).toString(16);
 
-      socket.hash = hash; // is there a way to access this or is it a useless line?
+      //socket.hash = hash; // is there a way to access this or is it a useless line?
       hashList[currentRoomCount] = hash;
 
       if (currentRoomCount < 3) {
@@ -57,9 +57,6 @@ const setupSockets = (ioServer) => {
       }
     });
 
-    socket.on('waitMessage', (data) => {
-      io.sockets.in(data.room).emit('removeWaitMessage', { data });
-    });
   });
 };
 

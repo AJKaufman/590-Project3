@@ -5,6 +5,7 @@ let ctx;
 let socket;
 let hash;
 let room;
+let myNum;
 let players = {}; //character list
 
 let animationFrame;
@@ -19,7 +20,7 @@ const joinGame = () => {
 };
 
 const init = () => {
-   
+
   socket = io.connect();
   
   socket.on('connect', () => {
@@ -28,14 +29,14 @@ const init = () => {
     ctx = canvas.getContext('2d');
 
     socket.on('joined', setUser);
-    socket.on('removeWaitMessage', removeWaitMessage);
     socket.on('gameStart', startGame);  
 
     document.querySelector('#joinButton').onclick = joinGame;
     document.body.addEventListener('keydown', keyDownHandler);
     document.body.addEventListener('keyup', keyUpHandler);
     
-  }
+  });
+  
 };
 
 window.onload = init;
