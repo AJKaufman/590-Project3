@@ -17,8 +17,6 @@ var setUser = function setUser(data) {
     myNum = data.playerCount;
   }
 
-  console.log('myNum = ' + myNum);
-
   // everyone gets an update to say how many people are in the room
   ctx.clearRect(0, 0, 1000, 1000);
   ctx.strokeStyle = 'white';
@@ -35,19 +33,21 @@ var startGame = function startGame(data) {
     myNum = data.playerCount;
   }
 
+  console.log('myNum = ' + myNum);
+
+  // player with potato div
+  var content = document.querySelector('#mainMessage');
   ctx.clearRect(0, 0, 1000, 1000);
 
   // allow the primary potato to start the game with hot potato in hand
   if (data.primaryPotato === myNum) {
-
+    content.innerHTML = '<div>You have the potato!</div>';
     setTimeout(displayPotato, 3000);
-
-    //    ctx.font = '48px serif';
-    //    ctx.strokeText('Press Space to Start!', ctx.width/2 - 200, ctx.height/2);
   } else {
     ctx.strokeStyle = 'white';
     ctx.font = '20px serif';
     ctx.strokeText('Waiting for primary potato to pass...', ctx.width / 2 - 200, ctx.height / 2);
+    content.innerHTML = '<div>Player ' + data.primaryPotato + ' has the potato</div>';
   }
 };
 
@@ -62,9 +62,17 @@ var displayPotato = function displayPotato() {
     randomNum = Math.floor(Math.random() * 4);
   }
 
+  // create the potato
+  ctx.strokeStyle = 'white';
+  ctx.fillStyle = 'brown';
+  ctx.beginPath();
+  ctx.arc(ctx.width / 2 - 100, ctx.height / 2 - 100, 100, 0, 2 * Math.PI);
+  ctx.stroke();
+  ctx.fill();
+
   if (randomNum === 0) {
     ctx.font = '60px serif';
-    ctx.arc(ctx.width / 2 - 100, ctx.height / 2 - 100, 100, 0, 2 * Math.PI);
+
     ctx.strokeText('W', ctx.width / 2 - 30, ctx.height / 2);
 
     setTimeout(function () {
