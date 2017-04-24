@@ -1,7 +1,6 @@
 "use strict";
 
 var redraw = function redraw(time) {
-  update();
 
   ctx.clearRect(0, 0, 1000, 1000);
 };
@@ -17,37 +16,48 @@ var setUser = function setUser(data) {
     myNum = data.playerCount;
   }
 
-  // everyone gets an update to say how many people are in the room
-  ctx.clearRect(0, 0, 1000, 1000);
-  ctx.strokeStyle = 'white';
-  ctx.font = '20px serif';
-  ctx.strokeText('Player Count: ' + data.playerCount + '/3', ctx.width / 2 - 200, ctx.height / 2);
+  console.log('myNum = ' + myNum);
+
+  var content = document.querySelector('#mainMessage');
+  content.innerHTML = 'Player Count: ' + data.playerCount + '/3';
+
+  if (myNum === 3) {
+    setTimeout(passPotato(data), 3000);
+  }
 };
 
-var startGame = function startGame(data) {
-
-  if (!hash) {
-    console.log('setting user');
-    room = data.room;
-    hash = data.hash;
-    myNum = data.playerCount;
-  }
-
-  console.log('myNum = ' + myNum);
+var passPotato = function passPotato(data) {
 
   // player with potato div
   var content = document.querySelector('#mainMessage');
-  ctx.clearRect(0, 0, 1000, 1000);
 
-  // allow the primary potato to start the game with hot potato in hand
-  if (data.primaryPotato === myNum) {
-    content.innerHTML = '<div>You have the potato!</div>';
-    setTimeout(displayPotato, 3000);
+  if (data.primaryPotato) {
+    // is this the first round?
+    // allow the primary potato to start the game with hot potato in hand
+    if (data.primaryPotato === myNum) {
+
+      content.innerHTML = '<div>You have the potato!</div>';
+      setTimeout(displayPotato, 3000);
+    } else {
+
+      ctx.clearRect(0, 0, 1000, 600);
+      ctx.strokeStyle = 'white';
+      ctx.font = '20px serif';
+      ctx.strokeText('Waiting for primary potato to pass...', 300, 300);
+      content.innerHTML = '<div>Player ' + data.primaryPotato + ' has the potato</div>';
+    }
   } else {
-    ctx.strokeStyle = 'white';
-    ctx.font = '20px serif';
-    ctx.strokeText('Waiting for primary potato to pass...', ctx.width / 2 - 200, ctx.height / 2);
-    content.innerHTML = '<div>Player ' + data.primaryPotato + ' has the potato</div>';
+    // it is not the first round
+    if (data.next === myNum) {
+      content.innerHTML = '<div>You have the potato!</div>';
+      setTimeout(displayPotato, 3000);
+    } else {
+
+      ctx.strokeStyle = 'white';
+      ctx.font = '20px serif';
+      ctx.strokeText('Waiting for primary potato to pass...', 300, 300);
+      content.innerHTML = '<div>Player ' + data.next + ' has the potato</div>';
+    }
   }
 };
 
@@ -62,58 +72,57 @@ var displayPotato = function displayPotato() {
     randomNum = Math.floor(Math.random() * 4);
   }
 
+  console.log('randomNum = ' + randomNum);
+
   // create the potato
+  ctx.clearRect(0, 0, 1000, 1000);
   ctx.strokeStyle = 'white';
-  ctx.fillStyle = 'brown';
+  ctx.fillStyle = '#D9865D';
   ctx.beginPath();
-  ctx.arc(ctx.width / 2 - 100, ctx.height / 2 - 100, 100, 0, 2 * Math.PI);
+  ctx.arc(500, 300, 100, 0, 2 * Math.PI);
   ctx.stroke();
   ctx.fill();
 
   if (randomNum === 0) {
     ctx.font = '60px serif';
-
-    ctx.strokeText('W', ctx.width / 2 - 30, ctx.height / 2);
+    ctx.strokeText('W', 470, 300);
 
     setTimeout(function () {
-      if (dDown) {
-        socket.emit('pass', { room: room, hash: hash });
+      if (wDown) {
+        socket.emit('pass', { room: room, hash: hash, myNum: myNum });
       } else {
         socket.emit('fail', { room: room, hash: hash });
       }
     }, 3000);
   } else if (randomNum === 1) {
     ctx.font = '60px serif';
-    ctx.arc(ctx.width / 2 - 100, ctx.height / 2 - 100, 100, 0, 2 * Math.PI);
-    ctx.strokeText('A', ctx.width / 2 - 30, ctx.height / 2);
+    ctx.strokeText('A', 470, 300);
 
     setTimeout(function () {
-      if (dDown) {
-        socket.emit('pass', { room: room, hash: hash });
+      if (aDown) {
+        socket.emit('pass', { room: room, hash: hash, myNum: myNum });
       } else {
         socket.emit('fail', { room: room, hash: hash });
       }
     }, 3000);
   } else if (randomNum === 2) {
     ctx.font = '60px serif';
-    ctx.arc(ctx.width / 2 - 100, ctx.height / 2 - 100, 100, 0, 2 * Math.PI);
-    ctx.strokeText('S', ctx.width / 2 - 30, ctx.height / 2);
+    ctx.strokeText('S', 470, 300);
 
     setTimeout(function () {
-      if (dDown) {
-        socket.emit('pass', { room: room, hash: hash });
+      if (sDown) {
+        socket.emit('pass', { room: room, hash: hash, myNum: myNum });
       } else {
         socket.emit('fail', { room: room, hash: hash });
       }
     }, 3000);
   } else if (randomNum === 3) {
     ctx.font = '60px serif';
-    ctx.arc(ctx.width / 2 - 100, ctx.height / 2 - 100, 100, 0, 2 * Math.PI);
-    ctx.strokeText('D', ctx.width / 2 - 30, ctx.height / 2);
+    ctx.strokeText('D', 470, 300);
 
     setTimeout(function () {
       if (dDown) {
-        socket.emit('pass', { room: room, hash: hash });
+        socket.emit('pass', { room: room, hash: hash, myNum: myNum });
       } else {
         socket.emit('fail', { room: room, hash: hash });
       }
@@ -190,7 +199,19 @@ var wDown = void 0,
 
 var joinGame = function joinGame() {
   console.log('join GAME clicked');
+  var button = document.querySelector('#joinButton');
+  button.innerHTML = '';
   socket.emit('requestAccess', {});
+};
+
+var endGame = function endGame(data) {
+  var content = document.querySelector('#mainMessage');
+
+  if (data.hash === hash) {
+    content.innerHTML = 'You lose!';
+  } else {
+    content.innerHTML = 'You lived!';
+  }
 };
 
 var init = function init() {
@@ -203,7 +224,8 @@ var init = function init() {
     ctx = canvas.getContext('2d');
 
     socket.on('joined', setUser);
-    socket.on('gameStart', startGame);
+    socket.on('passingToNext', passPotato);
+    socket.on('endingGame', endGame);
 
     document.querySelector('#joinButton').onclick = joinGame;
     document.body.addEventListener('keydown', keyDownHandler);

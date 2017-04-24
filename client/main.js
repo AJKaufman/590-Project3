@@ -16,7 +16,20 @@ let wDown, aDown, sDown, dDown;
 
 const joinGame = () => {
   console.log('join GAME clicked');
+  const button = document.querySelector('#joinButton');
+  button.innerHTML = '';
   socket.emit('requestAccess', {});
+};
+
+ 
+const endGame = (data) => {
+  let content = document.querySelector('#mainMessage');
+  
+  if(data.hash === hash) {
+    content.innerHTML = 'You lose!';
+  } else {
+    content.innerHTML = 'You lived!';
+  }
 };
 
 const init = () => {
@@ -29,7 +42,8 @@ const init = () => {
     ctx = canvas.getContext('2d');
 
     socket.on('joined', setUser);
-    socket.on('gameStart', startGame);  
+    socket.on('passingToNext', passPotato);
+    socket.on('endingGame', endGame);
 
     document.querySelector('#joinButton').onclick = joinGame;
     document.body.addEventListener('keydown', keyDownHandler);
