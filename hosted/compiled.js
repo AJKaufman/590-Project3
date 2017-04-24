@@ -17,6 +17,8 @@ var setUser = function setUser(data) {
     myNum = data.playerCount;
   }
 
+  console.log('myNum = ' + myNum);
+
   // everyone gets an update to say how many people are in the room
   ctx.clearRect(0, 0, 1000, 1000);
   ctx.strokeStyle = 'white';
@@ -25,6 +27,13 @@ var setUser = function setUser(data) {
 };
 
 var startGame = function startGame(data) {
+
+  if (!hash) {
+    console.log('setting user');
+    room = data.room;
+    hash = data.hash;
+    myNum = data.playerCount;
+  }
 
   ctx.clearRect(0, 0, 1000, 1000);
 

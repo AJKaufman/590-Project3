@@ -46,9 +46,10 @@ const setupSockets = (ioServer) => {
       } else {
         // send back that the players have joined with the list of hashes
         io.sockets.in(`room${nextRoom}`).emit('gameStart', {
-          hashList,
+          hashList: hashList,
           room: `room${nextRoom}`,
-          primaryPotato: hashList[currentRoomCount],
+          playerCount: currentRoomCount,
+          primaryPotato: currentRoomCount,
         });
 
         hashList = {};
