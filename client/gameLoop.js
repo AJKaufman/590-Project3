@@ -10,7 +10,7 @@ const setUser = (data) => {
   
   // everyone gets an update to say how many people are in the room
   ctx.clearRect(0,0,1000,1000);
-  ctx.strokeStyle = 'black';
+  ctx.strokeStyle = 'white';
   ctx.font = '20px serif';
   ctx.strokeText('Player Count: ' + data.playerCount + '/3', ctx.width/2 - 200, ctx.height/2);  
 }
@@ -27,7 +27,7 @@ const startGame = (data) => {
 //    ctx.font = '48px serif';
 //    ctx.strokeText('Press Space to Start!', ctx.width/2 - 200, ctx.height/2);
   } else {
-    ctx.strokeStyle = 'black';
+    ctx.strokeStyle = 'white';
     ctx.font = '20px serif';
     ctx.strokeText('Waiting for primary potato to pass...', ctx.width/2 - 200, ctx.height/2);
   }
