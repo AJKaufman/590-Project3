@@ -6,6 +6,7 @@ var redraw = function redraw(time) {
 };
 'use strict';
 
+// using gravity assignment
 var setUser = function setUser(data) {
 
   // if you are the new user, set your data
@@ -22,7 +23,7 @@ var setUser = function setUser(data) {
   content.innerHTML = 'Player Count: ' + data.playerCount + '/3';
 
   if (myNum === 3) {
-    setTimeout(passPotato(data), 3000);
+    setTimeout(passPotato(data), 2000);
   }
 };
 
@@ -50,7 +51,7 @@ var passPotato = function passPotato(data) {
     // it is not the first round
     if (data.next === myNum) {
       content.innerHTML = '<div>You have the potato!</div>';
-      setTimeout(displayPotato, 3000);
+      potatoPrompt = setTimeout(displayPotato, 3000);
     } else {
 
       ctx.strokeStyle = 'white';
@@ -77,56 +78,84 @@ var displayPotato = function displayPotato() {
   // create the potato
   ctx.clearRect(0, 0, 1000, 1000);
   ctx.strokeStyle = 'white';
+  ctx.font = '60px serif';
   ctx.fillStyle = '#D9865D';
   ctx.beginPath();
   ctx.arc(500, 300, 100, 0, 2 * Math.PI);
   ctx.stroke();
   ctx.fill();
 
+  displayLetter(randomNum);
+};
+
+var displayLetter = function displayLetter(randomNum) {
   if (randomNum === 0) {
-    ctx.font = '60px serif';
+    //let letter = 'w';
     ctx.strokeText('W', 470, 300);
 
+    requestAnimationFrame(function () {
+      update('w');
+    });
+
     setTimeout(function () {
-      if (wDown) {
-        socket.emit('pass', { room: room, hash: hash, myNum: myNum });
-      } else {
-        socket.emit('fail', { room: room, hash: hash });
-      }
+      socket.emit('fail', { room: room, hash: hash });
     }, 3000);
   } else if (randomNum === 1) {
-    ctx.font = '60px serif';
     ctx.strokeText('A', 470, 300);
 
+    requestAnimationFrame(function () {
+      update('a');
+    });
+
     setTimeout(function () {
-      if (aDown) {
-        socket.emit('pass', { room: room, hash: hash, myNum: myNum });
-      } else {
-        socket.emit('fail', { room: room, hash: hash });
-      }
+      socket.emit('fail', { room: room, hash: hash });
     }, 3000);
   } else if (randomNum === 2) {
-    ctx.font = '60px serif';
     ctx.strokeText('S', 470, 300);
 
-    setTimeout(function () {
-      if (sDown) {
-        socket.emit('pass', { room: room, hash: hash, myNum: myNum });
-      } else {
-        socket.emit('fail', { room: room, hash: hash });
-      }
-    }, 3000);
-  } else if (randomNum === 3) {
-    ctx.font = '60px serif';
-    ctx.strokeText('D', 470, 300);
+    requestAnimationFrame(function () {
+      update('s');
+    });
 
     setTimeout(function () {
-      if (dDown) {
-        socket.emit('pass', { room: room, hash: hash, myNum: myNum });
-      } else {
-        socket.emit('fail', { room: room, hash: hash });
-      }
+      socket.emit('fail', { room: room, hash: hash });
     }, 3000);
+  } else {
+    ctx.strokeText('D', 470, 300);
+
+    requestAnimationFrame(function () {
+      update('d');
+    });
+
+    setTimeout(function () {
+      socket.emit('fail', { room: room, hash: hash });
+    }, 3000);
+  }
+};
+
+// checks for button presses
+var update = function update(letter) {
+  if (letter === 'w' && wDown === true) {
+    clearTimout(potatoPrompt);
+    correctPress = true;
+    displayPotato();
+  } else if (letter === 'a' && aDown === true) {
+    clearTimout(potatoPrompt);
+    correctPress = true;
+    displayPotato();
+  } else if (letter === 's' && sDown === true) {
+    clearTimout(potatoPrompt);
+    correctPress = true;
+    displayPotato();
+  } else if (letter === 'd' && dDown === true) {
+    clearTimout(potatoPrompt);
+    correctPress = true;
+    displayPotato();
+  }
+
+  if (correctPress) {
+    correctPress = false;
+    requestAnimationFrame(update);
   }
 };
 
@@ -152,7 +181,8 @@ var keyDownHandler = function keyDownHandler(e) {
         }
         //Space key was lifted
         else if (keyPressed === 32) {
-            sendPass(); //call to invoke an pass
+            clearTimeout(potatoPrompt);
+            socket.emit('pass', { room: room, hash: hash, myNum: myNum });
           }
 };
 
@@ -190,8 +220,11 @@ var myNum = void 0;
 var players = {}; //character list
 
 var animationFrame = void 0;
-var randomNum = void 0;
+var frameCounter = void 0;
 
+var randomNum = void 0;
+var correctPress = void 0;
+var potatoPrompt = void 0;
 var wDown = void 0,
     aDown = void 0,
     sDown = void 0,

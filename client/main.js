@@ -9,9 +9,11 @@ let myNum;
 let players = {}; //character list
 
 let animationFrame;
+let frameCounter;
+
 let randomNum;
-
-
+let correctPress;
+let potatoPrompt;
 let wDown, aDown, sDown, dDown;
 
 const joinGame = () => {

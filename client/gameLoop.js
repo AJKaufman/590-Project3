@@ -1,3 +1,4 @@
+// using gravity assignment
 const setUser = (data) => {
   
   
@@ -15,7 +16,7 @@ const setUser = (data) => {
   content.innerHTML = 'Player Count: ' + data.playerCount + '/3';
 
   if(myNum === 3) {
-    setTimeout(passPotato(data), 3000);
+    setTimeout(passPotato(data), 2000);
   }
   
 }
@@ -42,7 +43,7 @@ const passPotato = (data) => {
   } else { // it is not the first round
     if(data.next === myNum){
       content.innerHTML = `<div>You have the potato!</div>`
-      setTimeout(displayPotato, 3000);
+      potatoPrompt = setTimeout(displayPotato, 3000);
     } else {
       
       ctx.strokeStyle = 'white';
@@ -71,64 +72,93 @@ const displayPotato = () => {
   // create the potato
   ctx.clearRect(0,0,1000,1000);
   ctx.strokeStyle = 'white';
+  ctx.font = '60px serif';
   ctx.fillStyle = '#D9865D';
   ctx.beginPath();
   ctx.arc(500, 300, 100, 0, 2 * Math.PI);
   ctx.stroke();
   ctx.fill();
   
-  if(randomNum === 0) {
-    ctx.font = '60px serif';
-    ctx.strokeText('W', 470, 300);
-    
-    setTimeout( () => {
-      if(wDown) {
-        socket.emit('pass', { room: room, hash: hash, myNum: myNum, });
-      } else {
-        socket.emit('fail', { room: room, hash: hash, });
-      }
-    }, 3000);
-    
-  } else if(randomNum === 1) {
-    ctx.font = '60px serif';
-    ctx.strokeText('A', 470, 300);
-    
-    setTimeout( () => {
-      if(aDown) {
-        socket.emit('pass', { room: room, hash: hash, myNum: myNum, });
-      } else {
-        socket.emit('fail', { room: room, hash: hash, });
-      }
-    }, 3000);
-    
-  } else if(randomNum === 2) {
-    ctx.font = '60px serif';
-    ctx.strokeText('S', 470, 300);
-    
-    setTimeout( () => {
-      if(sDown) {
-        socket.emit('pass', { room: room, hash: hash, myNum: myNum, });
-      } else {
-        socket.emit('fail', { room: room, hash: hash, });
-      }
-    }, 3000);
-    
-  } else if(randomNum === 3) {
-    ctx.font = '60px serif';
-    ctx.strokeText('D', 470, 300);
-    
-    setTimeout( () => {
-      if(dDown) {
-        socket.emit('pass', { room: room, hash: hash, myNum: myNum, });
-      } else {
-        socket.emit('fail', { room: room, hash: hash, });
-      }
-    }, 3000);
-    
-  }
+  displayLetter(randomNum);
   
 }
 
+const displayLetter = (randomNum) => {
+  if(randomNum === 0) {
+    //let letter = 'w';
+    ctx.strokeText('W', 470, 300);
+    
+    requestAnimationFrame(() => {
+          update('w');
+    });
+    
+    setTimeout( () => { 
+      socket.emit('fail', { room: room, hash: hash, });
+    }, 3000);
+    
+  } else if(randomNum === 1) {
+    ctx.strokeText('A', 470, 300);
+    
+    requestAnimationFrame(() => {
+          update('a');
+      });
+    
+    setTimeout( () => {
+      socket.emit('fail', { room: room, hash: hash, });
+    }, 3000);
+    
+  } else if(randomNum === 2) {
+    ctx.strokeText('S', 470, 300);
+          
+    requestAnimationFrame(() => {
+          update('s');
+    });
+      
+    setTimeout( () => {
+      socket.emit('fail', { room: room, hash: hash, });
+    }, 3000);
+    
+  } else {
+    ctx.strokeText('D', 470, 300);
+    
+    requestAnimationFrame(() => {
+          update('d');
+    });
+      
+    setTimeout( () => {
+      socket.emit('fail', { room: room, hash: hash, });
+    }, 3000);
+    
+  }
+};
+
+// checks for button presses
+const update = (letter) => {
+  if(letter === 'w' && wDown === true) {
+    clearTimout(potatoPrompt);
+    correctPress = true;
+    displayPotato();
+  } else if(letter === 'a' && aDown === true) {
+    clearTimout(potatoPrompt);
+    correctPress = true;
+    displayPotato();
+  } else if(letter === 's' && sDown === true) {
+    clearTimout(potatoPrompt);
+    correctPress = true;
+    displayPotato();
+  } else if(letter === 'd' && dDown === true) {
+    clearTimout(potatoPrompt);
+    correctPress = true;
+    displayPotato();
+  }
+  
+  
+    
+  if(correctPress){
+    correctPress = false;
+    requestAnimationFrame(update);
+  }
+};
 
 //handle for key down events
 const keyDownHandler = (e) => {
@@ -152,7 +182,8 @@ const keyDownHandler = (e) => {
   }
   //Space key was lifted
   else if(keyPressed === 32) {
-    sendPass(); //call to invoke an pass
+    clearTimeout(potatoPrompt);
+    socket.emit('pass', { room: room, hash: hash, myNum: myNum, });
   }
 };
 
@@ -177,3 +208,31 @@ const keyUpHandler = (e) => {
     dDown = false;
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
