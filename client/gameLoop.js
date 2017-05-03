@@ -8,6 +8,10 @@ const setUser = (data) => {
     room = data.room;
     hash = data.hash;
     myNum = data.playerCount;
+    data.next = myNum;
+    framesPassedSinceLetter = 0;
+    correctPress = false;
+    timeToPress = 180;
   }
   
   console.log('myNum = ' + myNum);
@@ -22,6 +26,10 @@ const setUser = (data) => {
 }
 
 const passPotato = (data) => {
+    
+  //saving the potatoPossessor
+  potatoPossessor = data.next;
+  console.log(potatoPossessor + " is the potatoPossessor");
   
   // player with potato div
   let content = document.querySelector('#mainMessage');
@@ -41,9 +49,10 @@ const passPotato = (data) => {
       content.innerHTML = `<div>Player ${data.primaryPotato} has the potato</div>`
     }
   } else { // it is not the first round
-    if(data.next === myNum){
+    if(potatoPossessor === myNum){
+      timeToPress = 180; // initial potato delay set to 3 seconds
       content.innerHTML = `<div>You have the potato!</div>`
-      potatoPrompt = setTimeout(displayPotato, 3000);
+      setTimeout(displayPotato, 3000);
     } else {
       
       ctx.strokeStyle = 'white';
@@ -58,6 +67,8 @@ const passPotato = (data) => {
 
 // displays the potato with the letter
 const displayPotato = () => {
+  
+  canPass = true;
   
   console.log('displaying potato');
   
@@ -85,77 +96,64 @@ const displayPotato = () => {
 
 const displayLetter = (randomNum) => {
   if(randomNum === 0) {
-    //let letter = 'w';
     ctx.strokeText('W', 470, 300);
-    
+    currentLetter = 'w';
+        console.log('current letter = ' + currentLetter);
+
     requestAnimationFrame(() => {
           update('w');
     });
-    
-    setTimeout( () => { 
-      socket.emit('fail', { room: room, hash: hash, });
-    }, 3000);
-    
   } else if(randomNum === 1) {
     ctx.strokeText('A', 470, 300);
-    
+    currentLetter = 'a';
+            console.log('current letter = ' + currentLetter);
+
     requestAnimationFrame(() => {
           update('a');
       });
-    
-    setTimeout( () => {
-      socket.emit('fail', { room: room, hash: hash, });
-    }, 3000);
-    
   } else if(randomNum === 2) {
     ctx.strokeText('S', 470, 300);
-          
+    currentLetter = 's';
+            console.log('current letter = ' + currentLetter);
+
     requestAnimationFrame(() => {
           update('s');
     });
-      
-    setTimeout( () => {
-      socket.emit('fail', { room: room, hash: hash, });
-    }, 3000);
-    
   } else {
     ctx.strokeText('D', 470, 300);
-    
+    currentLetter = 'd';
+            console.log('current letter = ' + currentLetter);
+
     requestAnimationFrame(() => {
           update('d');
     });
-      
-    setTimeout( () => {
-      socket.emit('fail', { room: room, hash: hash, });
-    }, 3000);
-    
   }
 };
 
 // checks for button presses
 const update = (letter) => {
-  if(letter === 'w' && wDown === true) {
-    clearTimout(potatoPrompt);
-    correctPress = true;
-    displayPotato();
-  } else if(letter === 'a' && aDown === true) {
-    clearTimout(potatoPrompt);
-    correctPress = true;
-    displayPotato();
-  } else if(letter === 's' && sDown === true) {
-    clearTimout(potatoPrompt);
-    correctPress = true;
-    displayPotato();
-  } else if(letter === 'd' && dDown === true) {
-    clearTimout(potatoPrompt);
-    correctPress = true;
-    displayPotato();
+  
+  ctx.beginPath();
+  ctx.arc(100, (framesPassedSinceLetter / timeToPress) * 1000, 20, 0, 2 * Math.PI);
+  ctx.fill();
+  
+  framesPassedSinceLetter++;
+  
+  if(framesPassedSinceLetter > timeToPress) {
+    socket.emit('fail', { room: room, hash: hash });
   }
   
-  
+  // if they pressed the right button, display the next letter
+  if(correctPress && canPass){
     
-  if(correctPress){
+    if(timeToPress > 30) { // make it go speedy faster every press
+      timeToPress *= 0.9;
+    }
+    
+    framesPassedSinceLetter = 0;
     correctPress = false;
+    displayPotato();
+  } else {
     requestAnimationFrame(update);
   }
 };
@@ -167,23 +165,53 @@ const keyDownHandler = (e) => {
   // W
   if(keyPressed === 87 || keyPressed === 38) {
     wDown = true;
+    if(currentLetter === 'w'){
+      console.log('w down');
+      correctPress = true;
+    } else {
+      socket.emit('fail', { room: room, hash: hash });
+    }
   }
   // A
   else if(keyPressed === 65 || keyPressed === 37) {
     aDown = true;
+    if(currentLetter === 'a'){
+      console.log('a down');
+      correctPress = true;
+    } else {
+      socket.emit('fail', { room: room, hash: hash });
+    }
   }
   // S
   else if(keyPressed === 83 || keyPressed === 40) {
     sDown = true;
+    if(currentLetter === 's'){
+      console.log('s down');
+      correctPress = true;
+    } else {
+      socket.emit('fail', { room: room, hash: hash });
+    }
   }
   // D
   else if(keyPressed === 68 || keyPressed === 39) {
     dDown = true;
+    if(currentLetter === 'd'){
+      console.log('d down');
+      correctPress = true;
+    } else {
+      socket.emit('fail', { room: room, hash: hash });
+    }
   }
-  //Space key was lifted
+  //Space key was pressed
   else if(keyPressed === 32) {
-    clearTimeout(potatoPrompt);
-    socket.emit('pass', { room: room, hash: hash, myNum: myNum, });
+    if(potatoPossessor === myNum) {
+      ctx.clearRect(0,0,1000,600);
+      canPass = false;
+      socket.emit('pass', { room: room, hash: hash, myNum: myNum, });
+    } else {
+      console.log(potatoPossessor + " is the potatoPossessor, and I am " + myNum);
+    }
+    
   }
 };
 
