@@ -26,7 +26,7 @@ const setUser = (data) => {
 }
 
 const passPotato = (data) => {
-    
+
   //saving the potatoPossessor
   potatoPossessor = data.next;
   console.log(potatoPossessor + " is the potatoPossessor");
@@ -37,7 +37,7 @@ const passPotato = (data) => {
   if(data.primaryPotato){ // is this the first round?
     // allow the primary potato to start the game with hot potato in hand
     if(data.primaryPotato === myNum) {
-
+      
       content.innerHTML = `<div>You have the potato!</div>`
       setTimeout(displayPotato, 3000);
     } else {
@@ -52,6 +52,7 @@ const passPotato = (data) => {
     if(potatoPossessor === myNum){
       timeToPress = 180; // initial potato delay set to 3 seconds
       content.innerHTML = `<div>You have the potato!</div>`
+      canPass = false;
       setTimeout(displayPotato, 3000);
     } else {
       
@@ -68,18 +69,12 @@ const passPotato = (data) => {
 // displays the potato with the letter
 const displayPotato = () => {
   
-  canPass = true;
-  
-  console.log('displaying potato');
-  
   randomNum = 4;
 
   while(randomNum === 4) {
     randomNum = Math.floor(Math.random() * 4);
   }
-  
-  console.log('randomNum = ' + randomNum);
-  
+    
   // create the potato
   ctx.clearRect(0,0,1000,1000);
   ctx.strokeStyle = 'white';
@@ -92,38 +87,32 @@ const displayPotato = () => {
   
   displayLetter(randomNum);
   
+  console.log('displaying potato');
+  canPass = true;
 }
 
 const displayLetter = (randomNum) => {
   if(randomNum === 0) {
     ctx.strokeText('W', 470, 300);
     currentLetter = 'w';
-        console.log('current letter = ' + currentLetter);
-
     requestAnimationFrame(() => {
           update('w');
     });
   } else if(randomNum === 1) {
     ctx.strokeText('A', 470, 300);
     currentLetter = 'a';
-            console.log('current letter = ' + currentLetter);
-
     requestAnimationFrame(() => {
           update('a');
       });
   } else if(randomNum === 2) {
     ctx.strokeText('S', 470, 300);
     currentLetter = 's';
-            console.log('current letter = ' + currentLetter);
-
     requestAnimationFrame(() => {
           update('s');
     });
   } else {
     ctx.strokeText('D', 470, 300);
     currentLetter = 'd';
-            console.log('current letter = ' + currentLetter);
-
     requestAnimationFrame(() => {
           update('d');
     });
@@ -144,7 +133,7 @@ const update = (letter) => {
   }
   
   // if they pressed the right button, display the next letter
-  if(correctPress && canPass){
+  if(correctPress ){
     
     if(timeToPress > 30) { // make it go speedy faster every press
       timeToPress *= 0.9;
@@ -153,7 +142,7 @@ const update = (letter) => {
     framesPassedSinceLetter = 0;
     correctPress = false;
     displayPotato();
-  } else {
+  } else if (canPass) {
     requestAnimationFrame(update);
   }
 };
@@ -166,7 +155,6 @@ const keyDownHandler = (e) => {
   if(keyPressed === 87 || keyPressed === 38) {
     wDown = true;
     if(currentLetter === 'w'){
-      console.log('w down');
       correctPress = true;
     } else {
       socket.emit('fail', { room: room, hash: hash });
@@ -176,7 +164,6 @@ const keyDownHandler = (e) => {
   else if(keyPressed === 65 || keyPressed === 37) {
     aDown = true;
     if(currentLetter === 'a'){
-      console.log('a down');
       correctPress = true;
     } else {
       socket.emit('fail', { room: room, hash: hash });
@@ -186,7 +173,6 @@ const keyDownHandler = (e) => {
   else if(keyPressed === 83 || keyPressed === 40) {
     sDown = true;
     if(currentLetter === 's'){
-      console.log('s down');
       correctPress = true;
     } else {
       socket.emit('fail', { room: room, hash: hash });
@@ -196,7 +182,6 @@ const keyDownHandler = (e) => {
   else if(keyPressed === 68 || keyPressed === 39) {
     dDown = true;
     if(currentLetter === 'd'){
-      console.log('d down');
       correctPress = true;
     } else {
       socket.emit('fail', { room: room, hash: hash });
@@ -204,8 +189,9 @@ const keyDownHandler = (e) => {
   }
   //Space key was pressed
   else if(keyPressed === 32) {
-    if(potatoPossessor === myNum) {
+    if(potatoPossessor === myNum && canPass) {
       ctx.clearRect(0,0,1000,600);
+      framesPassedSinceLetter = 0; // reset the frames to lose
       canPass = false;
       socket.emit('pass', { room: room, hash: hash, myNum: myNum, });
     } else {
