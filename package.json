@@ -4,8 +4,8 @@
   "description": "Hot potato!!!!",
   "main": "index.js",
   "scripts": {
-    "build": "babel ./client --out-file ./hosted/compiled.js",
-    "watch": "babel --watch ./client --out-file ./hosted/compiled.js",
+    "build": "babel ./client --presets react --out-file ./hosted/compiled.js",
+    "watch": "babel --watch ./client --presets react --out-file ./hosted/compiled.js",
     "nodemon": "nodemon --watch ./src ./src/server.js",
     "start": "node ./src/server.js",
     "pretest": "eslint ./src --fix",

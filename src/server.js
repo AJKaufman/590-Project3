@@ -1,28 +1,91 @@
-// Credit to 590-Project2 by Aidan Kaufman and simple-server-collision by Cody Van De Mark
-const http = require('http');
-const socketio = require('socket.io');
+// using code from DomoMaker E by Aidan Kaufman
 const path = require('path');
 const express = require('express');
-const sockets = require('./sockets.js');
+const compression = require('compression');
+const favicon = require('serve-favicon');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const expressHandlebars = require('express-handlebars');
+const session = require('express-session');
+const RedisStore = require('connect-redis')(session);
+const url = require('url');
+const csrf = require('csurf');
 
-const PORT = process.env.PORT || process.env.NODE_PORT || 3000;
+const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
-const app = express();
+const dbURL = process.env.MONGODB_URI || 'mongodb://localhost/CatMaker';
 
-app.use('/assets', express.static(path.resolve(`${__dirname}/../hosted/`)));
-
-app.get('/', (req, res) => {
-  res.sendFile(path.resolve(`${__dirname}/../hosted/index.html`));
+mongoose.connect(dbURL, (err) => {
+  if (err) {
+    console.log('Could not connect to database');
+    throw err;
+  } else {
+    console.log('connected to CatMaker');
+  }
 });
 
-const server = http.createServer(app);
-const io = socketio(server);
+let redisURL = {
+  hostname: 'localhost',
+  port: 6379,
+};
 
-sockets.setupSockets(io);
+let redisPass;
 
-server.listen(PORT, (err) => {
+if (process.env.REDISCLOUD_URL) {
+  redisURL = url.parse(process.env.REDISCLOUD_URL);
+  redisPass = redisURL.auth.split(':')[1];
+}
+
+// pull in our routes
+const router = require('./router.js');
+
+const app = express();
+app.use('/assets', express.static(path.resolve(`${__dirname}/../hosted/`)));
+app.use(favicon(`${__dirname}/../hosted/img/favicon.png`));
+app.disable('x-powered-by');
+
+app.use(session({
+  key: 'sessionid',
+  store: new RedisStore({
+    host: redisURL.hostname,
+    port: redisURL.port,
+    pass: redisPass,
+  }),
+  secret: 'Domo Arigato',
+  resave: true,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+  },
+}));
+
+app.engine('handlebars', expressHandlebars({ defaultLayout: 'main' }));
+app.set('view engine', 'handlebars');
+app.set('views', `${__dirname}/../views`);
+
+app.use(cookieParser());
+
+
+app.use(compression());
+app.use(bodyParser.urlencoded({
+  extended: true,
+}));
+
+app.use(csrf());
+app.use((err, req, res, next) => {
+  if (err.code !== 'EBADCSRFTOKEN') return next(err);
+
+  console.log('Missing CSRF token');
+  return false;
+});
+
+router(app);
+
+app.listen(port, (err) => {
   if (err) {
     throw err;
   }
-  console.log(`Listening on port ${PORT}`);
+  console.log(`Listening on port ${port}`);
 });
+

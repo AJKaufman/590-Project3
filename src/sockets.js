@@ -56,7 +56,7 @@ const setupSockets = (ioServer) => {
       num++;
       if (num > 3) num = 1;
 
-      console.log(num + " is the currentPotatoPossessor");
+      console.log(`${num} is the currentPotatoPossessor`);
       io.sockets.in(data.room).emit('passingToNext', { hash: data.hash, next: num });
     });
 
@@ -70,14 +70,4 @@ console.log('Websocket server started');
 
 
 module.exports.setupSockets = setupSockets;
-
-
-
-
-
-
-
-
-
-
 

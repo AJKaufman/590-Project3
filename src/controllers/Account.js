@@ -22,7 +22,7 @@ const login = (request, response) => {
   const password = `${req.body.pass}`;
 
   if (!username || !password) {
-    return res.status(400).json({ error: 'Rar...fill all fields please' });
+    return res.status(400).json({ error: 'Please fill all fields.' });
   }
 
   return Account.AccountModel.authenticate(username, password, (err, account) => {
@@ -46,10 +46,10 @@ const signup = (request, response) => {
   req.body.pass2 = `${req.body.pass2}`;
 
   if (!req.body.username || !req.body.pass || !req.body.pass2) {
-    return res.status(400).json({ error: 'Rar...all fields need to be filled! :(' });
+    return res.status(400).json({ error: 'All fields need to be filled!' });
   }
   if (req.body.pass !== req.body.pass2) {
-    return res.status(400).json({ error: 'Rar...the passwords don\'t match! :(' });
+    return res.status(400).json({ error: 'The passwords don\'t match!' });
   }
 
 
