@@ -88,6 +88,7 @@
 </head>
 <body>
   
+  <input type="hidden" name="_csrf" value={csrfToken} />
   
   <div id='score'>Instructions: If you have the potato, when a letter appears, press it before the line hits the bottom! Press Space to pass to the next player!</div>
   
@@ -100,11 +101,12 @@
   <div id="joinButton">
     <input type="button" value="Find me a game!">    
   </div>
-  
+  <div id="logoutButton">
+    <input type="button" value="Logout">
+  </div>
   
   <canvas id="canvas" height="600" width="1000">Please use an HTML 5 browser</canvas>
   <div id='mainMessage'></div>
 
-  
 </body>
 </html>

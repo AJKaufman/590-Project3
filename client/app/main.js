@@ -28,6 +28,12 @@ const joinGame = () => {
   socket.emit('requestAccess', {});
 };
 
+const logout = () => {
+  console.log('logout clicked');
+  sendAjax('GET', '/logout', null, redirect);
+  // redirect('/logout'); AIDAN
+  // problem is that I don't know how to get the res
+};
  
 const endGame = (data) => {
   let content = document.querySelector('#mainMessage');
@@ -58,6 +64,7 @@ const init = () => {
     socket.on('passingToNext', passPotato);
     socket.on('endingGame', endGame);
 
+    document.querySelector('#logoutButton').onclick = logout;
     document.querySelector('#joinButton').onclick = joinGame;
     document.body.addEventListener('keydown', keyDownHandler);
     document.body.addEventListener('keyup', keyUpHandler);

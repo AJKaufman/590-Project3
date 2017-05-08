@@ -7,6 +7,10 @@ const loginPage = (req, res) => {
   res.render('login', { csrfToken: req.csrfToken() });
 };
 
+// display the game page
+const gamePage = (req, res) => {
+  res.render('index', { csrfToken: req.csrfToken() });
+};
 
 const logout = (req, res) => {
   req.session.destroy();
@@ -32,7 +36,7 @@ const login = (request, response) => {
 
     req.session.account = Account.AccountModel.toAPI(account);
 
-    return res.json({ redirect: '/maker' });
+    return res.json({ redirect: '/' });
   });
 };
 
@@ -68,7 +72,7 @@ const signup = (request, response) => {
     // promises to save the user's data
     savePromise.then(() => {
       req.session.account = Account.AccountModel.toAPI(newAccount);
-      return res.json({ redirect: '/maker' });
+      return res.render('index', { csrfToken: req.csrfToken() });
     });
 
 
@@ -95,18 +99,8 @@ const getToken = (request, response) => {
   res.json(csrfJSON);
 };
 
-const make = (request, response) => {
-  const req = request;
-  const res = response;
 
-  const csrfJSON = {
-    csrfToken: req.csrfToken(),
-  };
-
-  res.json(csrfJSON);
-};
-
-module.exports.make = make;
+module.exports.gamePage = gamePage;
 module.exports.loginPage = loginPage;
 module.exports.login = login;
 module.exports.logout = logout;

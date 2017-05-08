@@ -144,7 +144,7 @@ nav:nth-child(1) {
 }
 
 .mainForm label {
-  display: inline-block;
+/*  display: inline-block;*/
   width: 100px;
   margin-right: 10px;
   text-align: right;
@@ -273,37 +273,6 @@ h3.emptyCat {
   margin-top: 18px;
 }
 
-h3.catName {
-  float:left;
-  width: 100px;
-  font-weight: bold;
-  margin-left: 65px;
-  padding: 10px;
-  padding-right: 120px;
-  font-size: 1.5em;
-  background-color: #6670D4;
-  border-radius: 2px;
-  border: 2px solid black;
-
-}
-
-h3.catAge {
-  float:right;
-  text-align: left;
-  width: 100px;
-  font-weight: bold;
-  padding-right: 40px;
-  font-size: 1.5em;
-}
-
-h3.catHappiness {
-  float:right;
-  text-align: left;
-  width: 100px;
-  font-weight: bold;
-  padding-right: 40px;
-  font-size: 1.5em;
-}
 
 .cat:first-child {
   margin-top: 10px;

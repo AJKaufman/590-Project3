@@ -73,7 +73,7 @@ const renderLogin = function() {
   return (
   <form id="loginForm" name="loginForm"
     onSubmit={this.handleSubmit}
-    action="/login"
+    action="/"
     method="POST"
     className="mainForm"
   >

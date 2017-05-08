@@ -5,6 +5,8 @@ const compression = require('compression');
 const favicon = require('serve-favicon');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const socketio = require('socket.io');
+const sockets = require('./sockets.js');
 const mongoose = require('mongoose');
 const expressHandlebars = require('express-handlebars');
 const session = require('express-session');
@@ -82,7 +84,8 @@ app.use((err, req, res, next) => {
 
 router(app);
 
-app.listen(port, (err) => {
+
+const server = app.listen(port, (err) => {
   if (err) {
     throw err;
   }
