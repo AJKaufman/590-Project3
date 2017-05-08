@@ -1,4 +1,4 @@
-// using code from DomoMaker E by Aidan Kaufman
+// using code from DomoMaker E
 const models = require('../models');
 
 const Account = models.Account;
@@ -95,7 +95,18 @@ const getToken = (request, response) => {
   res.json(csrfJSON);
 };
 
+const make = (request, response) => {
+  const req = request;
+  const res = response;
 
+  const csrfJSON = {
+    csrfToken: req.csrfToken(),
+  };
+
+  res.json(csrfJSON);
+};
+
+module.exports.make = make;
 module.exports.loginPage = loginPage;
 module.exports.login = login;
 module.exports.logout = logout;

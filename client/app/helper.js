@@ -3,6 +3,10 @@ const handleError = (message) => {
   $("#errorMessage").text(message);
 };
 
+const redirect = (response) => {
+  window.location = response.redirect;
+};
+
 const sendAjax = (type, action, data, success) => {
   $.ajax({
      

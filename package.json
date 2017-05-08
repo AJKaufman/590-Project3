@@ -4,7 +4,9 @@
   "description": "Hot potato!!!!",
   "main": "index.js",
   "scripts": {
-    "build": "babel ./client --presets react --out-file ./hosted/compiled.js",
+    "buildComp": "babel ./client/app --presets react --out-file ./hosted/compiled.js",
+    "buildLoginBundle": "babel ./client/login --presets react --out-file ./hosted/loginBundle.js",
+    "build": "npm run buildComp && npm run buildLoginBundle",
     "watch": "babel --watch ./client --presets react --out-file ./hosted/compiled.js",
     "nodemon": "nodemon --watch ./src ./src/server.js",
     "start": "node ./src/server.js",
