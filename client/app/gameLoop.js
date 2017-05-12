@@ -11,7 +11,7 @@ const setUser = (data) => {
     framesPassedSinceLetter = 0;
     correctPress = false;
     timeToPress = 180;
-    myScore = 0;
+    myScore = 10;
   }
   
   console.log('myNum = ' + myNum);
@@ -48,22 +48,22 @@ const passPotato = (data) => {
     // allow the primary potato to start the game with hot potato in hand
     if(data.primaryPotato === myNum) {
       
-      ctx.fillText(`You have the potato!`, CWHALF - 70, CHHALF);
+      ctx.fillText(`You have the potato!`, CWHALF - 110, CHHALF);
       content.innerHTML = `<div>You have the potato!</div>`
       setTimeout(displayPotato, 3000);
     } else {
-      ctx.fillText(`Player ${data.next} has the potato`, CWHALF - 70, CHHALF);
+      ctx.fillText(`Player ${data.next} has the potato`, CWHALF - 90, CHHALF);
       content.innerHTML = `<div>Player ${data.primaryPotato} has the potato</div>`;
     }
   } else { // it is not the first round
     if(potatoPossessor === myNum){
       timeToPress = 180; // initial potato delay set to 3 seconds
-      ctx.fillText(`You have the potato!`, CWHALF - 70, CHHALF);
+      ctx.fillText(`You have the potato!`, CWHALF - 110, CHHALF);
       content.innerHTML = `<div>You have the potato!</div>`
       canPass = false;
       setTimeout(displayPotato, 3000);
     } else {
-      ctx.fillText(`Player ${data.next} has the potato`, CWHALF - 70, CHHALF);
+      ctx.fillText(`Player ${data.next} has the potato`, CWHALF - 90, CHHALF);
       content.innerHTML = `<div>Player ${data.next} has the potato</div>`;
     }
   }
@@ -73,6 +73,9 @@ const passPotato = (data) => {
 
 // displays the potato with the letter
 const displayPotato = () => {
+  
+  document.body.addEventListener('keydown', keyDownHandler);
+  document.body.addEventListener('keyup', keyUpHandler);
   
   randomNum = 4;
 
@@ -168,9 +171,9 @@ const update = (letter) => {
   }
 };
 
-const sendPoints = () => {
+const sendPoints = (data) => {
   canPass = false;
-  socket.emit('myScore', { myScore: myScore, room: room, myNum: myNum });
+  socket.emit('myScore', { myHash: hash, hash: data.hash, myScore: myScore, room: room, myNum: myNum });
 };
 
 //handle for key down events
@@ -183,6 +186,8 @@ const keyDownHandler = (e) => {
     if(currentLetter === 'w'){
       correctPress = true;
     } else {
+      console.log('hash: ' + hash);
+      myScore = 0;
       socket.emit('fail', { room: room, hash: hash });
     }
   }
@@ -192,6 +197,8 @@ const keyDownHandler = (e) => {
     if(currentLetter === 'a'){
       correctPress = true;
     } else {
+      console.log('hash: ' + hash);
+      myScore = 0;
       socket.emit('fail', { room: room, hash: hash });
     }
   }
@@ -201,6 +208,8 @@ const keyDownHandler = (e) => {
     if(currentLetter === 's'){
       correctPress = true;
     } else {
+      console.log('hash: ' + hash);
+      myScore = 0;
       socket.emit('fail', { room: room, hash: hash });
     }
   }
@@ -210,13 +219,19 @@ const keyDownHandler = (e) => {
     if(currentLetter === 'd'){
       correctPress = true;
     } else {
+      console.log('hash: ' + hash);
+      myScore = 0;
       socket.emit('fail', { room: room, hash: hash });
     }
   }
   //Space key was pressed
   else if(keyPressed === 32) {
     if(potatoPossessor === myNum && canPass) {
-      ctx.clearRect(0,0,1000,600);
+      
+      document.body.removeEventListener('keydown', keyDownHandler);
+      document.body.removeEventListener('keyup', keyUpHandler);
+      
+      ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT);
       framesPassedSinceLetter = 0; // reset the frames to lose
       canPass = false;
       socket.emit('pass', { room: room, hash: hash, myNum: myNum, });

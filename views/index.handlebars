@@ -56,13 +56,32 @@
         min-height: 100%;
       }
       
+      .endingMessage {
+        font-size: 2em;
+        background-color: '#363536';
+      }
+      
        .setup {
+      }
+      
+      #playAgain {
+        position: absolute;
+        top: 50%;
+        transition: fadein 2s;
+      }
+      
+      #results {
+        background-color: '#363536';
       }
       
       #mainMessage {
         font-size: 3em;
         padding-top: 30px;
         padding-bottom: 30px;
+      }
+      
+      #navbar {
+        display: inline-block;
       }
       
       #welcome {
@@ -117,6 +136,10 @@
   
   <div class="everything">
   
+    <div id="navbar">
+      <div class="mmNav">Main Menu</div>
+      <div class="hpNav">Hot Potates!</div>
+    </div>
   
 <!--    <div id='instructions'>Instructions: If you have the potato, when a letter appears, press it before the line hits the right wall! Press Space to pass to the next player!</div>-->
 

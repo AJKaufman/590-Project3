@@ -63,11 +63,11 @@ const setupSockets = (ioServer) => {
     });
 
     socket.on('fail', (data) => {
-      io.sockets.in(data.room).emit('askPoints', {});
+      io.sockets.in(data.room).emit('askPoints', { hash: data.hash });
     });
 
     socket.on('myScore', (data) => {
-      io.sockets.in(data.room).emit('endingGame', { hash: data.hash, score: data.myScore, num: data.myNum });
+      io.sockets.in(data.room).emit('endingGame', { myHash: data.myHash, hash: data.hash, score: data.myScore, num: data.myNum });
     });
 
     // end the game when

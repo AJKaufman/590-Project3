@@ -49,18 +49,27 @@ const endGame = (data) => {
   
   ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT);
   
+  console.log("Player " + data.hash + " dropped the potate");
+  console.log("I am " + hash);
   
   if(data.hash === null) {
     content.innerHTML = 'Oh no, someone left!';
   }
-  else if(data.hash === hash) {
-    content.innerHTML = 'You lose!';
+  else if(data.hash === data.myHash) {
+    //content.innerHTML = 'You lose!';
     let results = document.querySelector('#results');
-    results.innerHTML += `Player ${data.num} dropped the potate and lost!`;
+    results.innerHTML += `<div class="endingMessage">Player ${data.num} dropped the potate and lost!</div>`;
+    if(data.hash === hash) content.innerHTML = 'You lose!';
   } else {
-    content.innerHTML = 'You lived!';
+    if(data.score <= myScore){
+      content.innerHTML = 'You win!';
+    } else if(myScore === 0) {
+      content.innerHTML = 'You lose!';
+    } else {
+      content.innerHTML = 'You lived!';
+    }
     let results = document.querySelector('#results');
-    results.innerHTML += `Player ${data.num}'s score is: ${data.score}`;
+    results.innerHTML += `<div class="endingMessage">Player ${data.num}'s score is: ${data.score}</div>`;
   }
   
   console.log('removing canvas');
@@ -108,9 +117,8 @@ const init = () => {
 
     //document.querySelector('#logoutButton').onclick = logout;
     document.querySelector('#joinButton').onclick = joinGame;
-    document.body.addEventListener('keydown', keyDownHandler);
-    document.body.addEventListener('keyup', keyUpHandler);
-    
+//    document.querySelector('.mmNav').onclick = sendAjax("GET", '/', null, redirect);;
+//    document.querySelector('.hpNav').onclick = sendAjax("GET", '/', null, redirect);
     //document.querySelector('#instructions');
   });
   
