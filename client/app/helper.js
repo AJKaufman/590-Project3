@@ -18,7 +18,25 @@ const sendAjax = (type, action, data, success) => {
     success: success,
     error: function(xhr, status, error) {
       
-      var messageObj = JSON.parse(xhr.responseText);
+      const messageObj = JSON.parse(xhr.responseText);
+      handleError(messageObj.error);
+    }
+  });  
+};
+
+
+const sendAjaxHTML = (type, action, data, success) => {
+  $.ajax({
+     
+    cache: false,
+    type: type,
+    url: action,
+    data: data,
+    dataType: 'html',
+    success: success,
+    error: function(xhr, status, error) {
+      
+      const messageObj = xhr.responseText;
       handleError(messageObj.error);
     }
   });  

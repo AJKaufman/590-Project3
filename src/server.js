@@ -13,6 +13,7 @@ const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 const url = require('url');
 const csrf = require('csurf');
+const http = require('http');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
@@ -84,11 +85,24 @@ app.use((err, req, res, next) => {
 
 router(app);
 
+const server = http.createServer(app);
+const io = socketio(server);
 
-const server = app.listen(port, (err) => {
+sockets.setupSockets(io);
+
+server.listen(port, (err) => {
   if (err) {
     throw err;
   }
   console.log(`Listening on port ${port}`);
 });
+
+
+//
+// app.listen(port, (err) => {
+//  if (err) {
+//    throw err;
+//  }
+//  console.log(`Listening on port ${port}`);
+// });
 

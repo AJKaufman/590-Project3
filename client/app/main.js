@@ -18,19 +18,28 @@ let randomNum;
 let correctPress;
 let currentLetter;
 let potatoPrompt;
+let potateImg;
 let framesPassedSinceLetter;
+let myScore;
 let wDown, aDown, sDown, dDown;
+
+const CANVASWIDTH = 800;
+const CWHALF = 400;
+const CANVASHEIGHT = 400;
+const CHHALF = 200;
+
 
 const joinGame = () => {
   console.log('join GAME clicked');
   const button = document.querySelector('#joinButton');
   button.innerHTML = '';
+  document.querySelector('#joinButton').onclick = false;
   socket.emit('requestAccess', {});
 };
 
 const logout = () => {
   console.log('logout clicked');
-  sendAjax('GET', '/logout', null, redirect);
+  sendAjaxHTML('GET', '/logout', null, redirect);
   // redirect('/logout'); AIDAN
   // problem is that I don't know how to get the res
 };
@@ -38,17 +47,49 @@ const logout = () => {
 const endGame = (data) => {
   let content = document.querySelector('#mainMessage');
   
-  ctx.clearRect(0,0,1000,1000);
+  ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT);
   
-  if(data.hash === hash) {
-    content.innerHTML = 'You lose!';
-    ctx.strokeText('You lose!', 300, 300);
-  } else {
-    ctx.strokeStyle = 'white';
-    ctx.font = '20px serif';
-    content.innerHTML = 'You lived!';
-    ctx.strokeText('You lived!', 300, 300);
+  
+  if(data.hash === null) {
+    content.innerHTML = 'Oh no, someone left!';
   }
+  else if(data.hash === hash) {
+    content.innerHTML = 'You lose!';
+    let results = document.querySelector('#results');
+    results.innerHTML += `Player ${data.num} dropped the potate and lost!`;
+  } else {
+    content.innerHTML = 'You lived!';
+    let results = document.querySelector('#results');
+    results.innerHTML += `Player ${data.num}'s score is: ${data.score}`;
+  }
+  
+  console.log('removing canvas');
+  // turn off eventListeners
+  $('canvas').remove();
+  document.body.removeEventListener('keydown', keyDownHandler);
+  document.body.removeEventListener('keyup', keyUpHandler);
+  
+//  let mainMenuButton = document.querySelector('#returnToMainMenu');
+//  mainMenuButton.innerHTML = '<form onSubmit="mainMenu()">';
+//  mainMenuButton.innerHTML += '<input class="mainMenu" type="submit" value="Main Menu" />';
+//  mainMenuButton.innerHTML += '</form>';
+  
+  let playAgainButton = document.querySelector('#playAgain');
+  playAgainButton.innerHTML = '<input class="playAgain" type="button" value="Play Again?" />';
+  playAgainButton.onclick = playAgain;
+};
+
+// main menu
+const mainMenu = () => {
+  console.log('main menu');
+  let content = document.querySelector('#mainMessage');
+  content.innerHTML = "";
+};
+
+// reload the page
+const playAgain = () => {
+  console.log('reloading');
+  location.reload();
 };
 
 const init = () => {
@@ -62,13 +103,15 @@ const init = () => {
 
     socket.on('joined', setUser);
     socket.on('passingToNext', passPotato);
+    socket.on('askPoints', sendPoints);
     socket.on('endingGame', endGame);
 
-    document.querySelector('#logoutButton').onclick = logout;
+    //document.querySelector('#logoutButton').onclick = logout;
     document.querySelector('#joinButton').onclick = joinGame;
     document.body.addEventListener('keydown', keyDownHandler);
     document.body.addEventListener('keyup', keyUpHandler);
     
+    //document.querySelector('#instructions');
   });
   
 };

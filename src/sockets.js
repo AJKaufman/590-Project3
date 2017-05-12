@@ -6,6 +6,7 @@ let hashList = {};
 const roomList = {};
 let nextRoom = 0;
 let currentRoomCount = 0;
+let room;
 
 let io;
 
@@ -22,6 +23,7 @@ const setupSockets = (ioServer) => {
 
       // send the user to their room
       socket.join(`room${nextRoom}`);
+      room = `room${nextRoom}`;
 
       // if the room isn't in the roomList
       if (!roomList[`room${nextRoom}`]) {
@@ -61,7 +63,16 @@ const setupSockets = (ioServer) => {
     });
 
     socket.on('fail', (data) => {
-      io.sockets.in(data.room).emit('endingGame', { hash: data.hash });
+      io.sockets.in(data.room).emit('askPoints', {});
+    });
+
+    socket.on('myScore', (data) => {
+      io.sockets.in(data.room).emit('endingGame', { hash: data.hash, score: data.myScore, num: data.myNum });
+    });
+
+    // end the game when
+    socket.on('disconnect', () => {
+      io.sockets.in(room).emit('endingGame', { hash: null });
     });
   });
 };

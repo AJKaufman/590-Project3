@@ -22,7 +22,7 @@ const sendAjax = (type, action, data, success) => {
     success: success,
     error: function(xhr, status, error) {
       
-      var messageObj = JSON.parse(xhr.responseText);
+      const messageObj = JSON.parse(xhr.responseText);
       handleError(messageObj.error);
     }
   });  
@@ -73,7 +73,7 @@ const renderLogin = function() {
   return (
   <form id="loginForm" name="loginForm"
     onSubmit={this.handleSubmit}
-    action="/"
+    action="/login"
     method="POST"
     className="mainForm"
   >

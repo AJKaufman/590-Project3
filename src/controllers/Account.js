@@ -4,6 +4,7 @@ const models = require('../models');
 const Account = models.Account;
 
 const loginPage = (req, res) => {
+  console.log('loading login page');
   res.render('login', { csrfToken: req.csrfToken() });
 };
 
@@ -50,10 +51,10 @@ const signup = (request, response) => {
   req.body.pass2 = `${req.body.pass2}`;
 
   if (!req.body.username || !req.body.pass || !req.body.pass2) {
-    return res.status(400).json({ error: 'All fields need to be filled!' });
+    return res.status(400).json({ error: 'All fields need to be filled.' });
   }
   if (req.body.pass !== req.body.pass2) {
-    return res.status(400).json({ error: 'The passwords don\'t match!' });
+    return res.status(400).json({ error: 'The passwords don\'t match.' });
   }
 
 

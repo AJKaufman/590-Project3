@@ -1,9 +1,3 @@
-"use strict";
-
-var redraw = function redraw(time) {
-
-  ctx.clearRect(0, 0, 1000, 1000);
-};
 'use strict';
 
 // using gravity assignment
@@ -19,11 +13,16 @@ var setUser = function setUser(data) {
     framesPassedSinceLetter = 0;
     correctPress = false;
     timeToPress = 180;
+    myScore = 0;
   }
 
   console.log('myNum = ' + myNum);
 
   var content = document.querySelector('#mainMessage');
+  ctx.clearRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
+  ctx.fillStyle = 'white';
+  ctx.font = '20px serif';
+  ctx.fillText('Player Count: ' + data.playerCount + '/3', CWHALF - 70, CHHALF);
   content.innerHTML = 'Player Count: ' + data.playerCount + '/3';
 
   if (myNum === 3) {
@@ -31,7 +30,13 @@ var setUser = function setUser(data) {
   }
 };
 
+// passes the potato to the next person
 var passPotato = function passPotato(data) {
+
+  // set the styles
+  ctx.clearRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
+  ctx.fillStyle = 'white';
+  ctx.font = '30px serif';
 
   //saving the potatoPossessor
   potatoPossessor = data.next;
@@ -45,28 +50,23 @@ var passPotato = function passPotato(data) {
     // allow the primary potato to start the game with hot potato in hand
     if (data.primaryPotato === myNum) {
 
+      ctx.fillText('You have the potato!', CWHALF - 70, CHHALF);
       content.innerHTML = '<div>You have the potato!</div>';
       setTimeout(displayPotato, 3000);
     } else {
-
-      ctx.clearRect(0, 0, 1000, 600);
-      ctx.strokeStyle = 'white';
-      ctx.font = '20px serif';
-      ctx.strokeText('Waiting for primary potato to pass...', 300, 300);
+      ctx.fillText('Player ' + data.next + ' has the potato', CWHALF - 70, CHHALF);
       content.innerHTML = '<div>Player ' + data.primaryPotato + ' has the potato</div>';
     }
   } else {
     // it is not the first round
     if (potatoPossessor === myNum) {
       timeToPress = 180; // initial potato delay set to 3 seconds
+      ctx.fillText('You have the potato!', CWHALF - 70, CHHALF);
       content.innerHTML = '<div>You have the potato!</div>';
       canPass = false;
       setTimeout(displayPotato, 3000);
     } else {
-
-      ctx.strokeStyle = 'white';
-      ctx.font = '20px serif';
-      ctx.strokeText('Waiting for primary potato to pass...', 300, 300);
+      ctx.fillText('Player ' + data.next + ' has the potato', CWHALF - 70, CHHALF);
       content.innerHTML = '<div>Player ' + data.next + ' has the potato</div>';
     }
   }
@@ -82,14 +82,16 @@ var displayPotato = function displayPotato() {
   }
 
   // create the potato
-  ctx.clearRect(0, 0, 1000, 1000);
-  ctx.strokeStyle = 'white';
+  ctx.clearRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
+  ctx.strokeStyle = 'blue';
   ctx.font = '60px serif';
   ctx.fillStyle = '#D9865D';
   ctx.beginPath();
-  ctx.arc(500, 300, 100, 0, 2 * Math.PI);
+  ctx.arc(CWHALF, CHHALF, 100, 0, 2 * Math.PI);
   ctx.stroke();
   ctx.fill();
+
+  potateImg = new Image();
 
   displayLetter(randomNum);
 
@@ -97,27 +99,40 @@ var displayPotato = function displayPotato() {
   canPass = true;
 };
 
+// displays the potates and the letters so the players know what to press
 var displayLetter = function displayLetter(randomNum) {
+
+  potateImg.width = 30;
+  potateImg.height = 30;
+
   if (randomNum === 0) {
-    ctx.strokeText('W', 470, 300);
+    ctx.fillText('W', 0, 100);
+    potateImg.src = '../assets/img/potate1.png';
+    ctx.drawImage(potateImg, CWHALF / 1.3, 0);
     currentLetter = 'w';
     requestAnimationFrame(function () {
       update('w');
     });
   } else if (randomNum === 1) {
-    ctx.strokeText('A', 470, 300);
+    ctx.fillText('A', 0, 100);
+    potateImg.src = '../assets/img/face.png';
+    ctx.drawImage(potateImg, CWHALF / 1.8, 0);
     currentLetter = 'a';
     requestAnimationFrame(function () {
       update('a');
     });
   } else if (randomNum === 2) {
-    ctx.strokeText('S', 470, 300);
+    ctx.fillText('S', 0, 100);
+    potateImg.src = '../assets/img/potate3.png';
+    ctx.drawImage(potateImg, CWHALF / 1.5, CHHALF / 3.3);
     currentLetter = 's';
     requestAnimationFrame(function () {
       update('s');
     });
   } else {
-    ctx.strokeText('D', 470, 300);
+    ctx.fillText('D', 0, 100);
+    potateImg.src = '../assets/img/potate4.png';
+    ctx.drawImage(potateImg, CWHALF / 1.4, CHHALF / 3);
     currentLetter = 'd';
     requestAnimationFrame(function () {
       update('d');
@@ -128,9 +143,8 @@ var displayLetter = function displayLetter(randomNum) {
 // checks for button presses
 var update = function update(letter) {
 
-  ctx.beginPath();
-  ctx.arc(100, framesPassedSinceLetter / timeToPress * 1000, 20, 0, 2 * Math.PI);
-  ctx.fill();
+  ctx.fillStyle = '#D9865D';
+  ctx.fillRect(framesPassedSinceLetter / timeToPress * CANVASWIDTH, 0, 30, 30);
 
   framesPassedSinceLetter++;
 
@@ -146,12 +160,19 @@ var update = function update(letter) {
       timeToPress *= 0.9;
     }
 
+    myScore += 10;
+
     framesPassedSinceLetter = 0;
     correctPress = false;
     displayPotato();
   } else if (canPass) {
     requestAnimationFrame(update);
   }
+};
+
+var sendPoints = function sendPoints() {
+  canPass = false;
+  socket.emit('myScore', { myScore: myScore, room: room, myNum: myNum });
 };
 
 //handle for key down events
@@ -228,7 +249,7 @@ var keyUpHandler = function keyUpHandler(e) {
           dDown = false;
         }
 };
-"use strict";
+'use strict';
 
 // using code from DomoMaker E by Aidan Kaufman
 var handleError = function handleError(message) {
@@ -255,6 +276,23 @@ var sendAjax = function sendAjax(type, action, data, success) {
     }
   });
 };
+
+var sendAjaxHTML = function sendAjaxHTML(type, action, data, success) {
+  $.ajax({
+
+    cache: false,
+    type: type,
+    url: action,
+    data: data,
+    dataType: 'html',
+    success: success,
+    error: function error(xhr, status, _error2) {
+
+      var messageObj = xhr.responseText;
+      handleError(messageObj.error);
+    }
+  });
+};
 'use strict';
 
 // credit to Project2-590 by Aidan Kaufman
@@ -277,22 +315,30 @@ var randomNum = void 0;
 var correctPress = void 0;
 var currentLetter = void 0;
 var potatoPrompt = void 0;
+var potateImg = void 0;
 var framesPassedSinceLetter = void 0;
+var myScore = void 0;
 var wDown = void 0,
     aDown = void 0,
     sDown = void 0,
     dDown = void 0;
 
+var CANVASWIDTH = 800;
+var CWHALF = 400;
+var CANVASHEIGHT = 400;
+var CHHALF = 200;
+
 var joinGame = function joinGame() {
   console.log('join GAME clicked');
   var button = document.querySelector('#joinButton');
   button.innerHTML = '';
+  document.querySelector('#joinButton').onclick = false;
   socket.emit('requestAccess', {});
 };
 
 var logout = function logout() {
   console.log('logout clicked');
-  sendAjax('GET', '/logout', null, redirect);
+  sendAjaxHTML('GET', '/logout', null, redirect);
   // redirect('/logout'); AIDAN
   // problem is that I don't know how to get the res
 };
@@ -300,17 +346,47 @@ var logout = function logout() {
 var endGame = function endGame(data) {
   var content = document.querySelector('#mainMessage');
 
-  ctx.clearRect(0, 0, 1000, 1000);
+  ctx.clearRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
 
-  if (data.hash === hash) {
+  if (data.hash === null) {
+    content.innerHTML = 'Oh no, someone left!';
+  } else if (data.hash === hash) {
     content.innerHTML = 'You lose!';
-    ctx.strokeText('You lose!', 300, 300);
+    var results = document.querySelector('#results');
+    results.innerHTML += 'Player ' + data.num + ' dropped the potate and lost!';
   } else {
-    ctx.strokeStyle = 'white';
-    ctx.font = '20px serif';
     content.innerHTML = 'You lived!';
-    ctx.strokeText('You lived!', 300, 300);
+    var _results = document.querySelector('#results');
+    _results.innerHTML += 'Player ' + data.num + '\'s score is: ' + data.score;
   }
+
+  console.log('removing canvas');
+  // turn off eventListeners
+  $('canvas').remove();
+  document.body.removeEventListener('keydown', keyDownHandler);
+  document.body.removeEventListener('keyup', keyUpHandler);
+
+  //  let mainMenuButton = document.querySelector('#returnToMainMenu');
+  //  mainMenuButton.innerHTML = '<form onSubmit="mainMenu()">';
+  //  mainMenuButton.innerHTML += '<input class="mainMenu" type="submit" value="Main Menu" />';
+  //  mainMenuButton.innerHTML += '</form>';
+
+  var playAgainButton = document.querySelector('#playAgain');
+  playAgainButton.innerHTML = '<input class="playAgain" type="button" value="Play Again?" />';
+  playAgainButton.onclick = playAgain;
+};
+
+// main menu
+var mainMenu = function mainMenu() {
+  console.log('main menu');
+  var content = document.querySelector('#mainMessage');
+  content.innerHTML = "";
+};
+
+// reload the page
+var playAgain = function playAgain() {
+  console.log('reloading');
+  location.reload();
 };
 
 var init = function init() {
@@ -324,12 +400,15 @@ var init = function init() {
 
     socket.on('joined', setUser);
     socket.on('passingToNext', passPotato);
+    socket.on('askPoints', sendPoints);
     socket.on('endingGame', endGame);
 
-    document.querySelector('#logoutButton').onclick = logout;
+    //document.querySelector('#logoutButton').onclick = logout;
     document.querySelector('#joinButton').onclick = joinGame;
     document.body.addEventListener('keydown', keyDownHandler);
     document.body.addEventListener('keyup', keyUpHandler);
+
+    //document.querySelector('#instructions');
   });
 };
 
