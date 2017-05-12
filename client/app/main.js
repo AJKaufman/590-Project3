@@ -9,6 +9,7 @@ let myNum;
 let players = {}; //character list'
 let potatoPossessor;
 
+
 let animationFrame;
 let frameCounter;
 
@@ -22,6 +23,7 @@ let potateImg;
 let framesPassedSinceLetter;
 let myScore;
 let wDown, aDown, sDown, dDown;
+let displayMessageCount = 0;
 
 const CANVASWIDTH = 800;
 const CWHALF = 400;
@@ -45,6 +47,9 @@ const logout = () => {
 };
  
 const endGame = (data) => {
+  
+  displayMessageCount++;
+  
   let content = document.querySelector('#mainMessage');
   
   ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT);
@@ -52,25 +57,28 @@ const endGame = (data) => {
   console.log("Player " + data.hash + " dropped the potate");
   console.log("I am " + hash);
   
-  if(data.hash === null) {
-    content.innerHTML = 'Oh no, someone left!';
-  }
-  else if(data.hash === data.myHash) {
-    //content.innerHTML = 'You lose!';
-    let results = document.querySelector('#results');
-    results.innerHTML += `<div class="endingMessage">Player ${data.num} dropped the potate and lost!</div>`;
-    if(data.hash === hash) content.innerHTML = 'You lose!';
-  } else {
-    if(data.score <= myScore){
-      content.innerHTML = 'You win!';
-    } else if(myScore === 0) {
-      content.innerHTML = 'You lose!';
-    } else {
-      content.innerHTML = 'You lived!';
+  if(displayMessageCount > 3){
+    if(data.hash === null) {
+      content.innerHTML = 'Oh no, someone left!';
     }
-    let results = document.querySelector('#results');
-    results.innerHTML += `<div class="endingMessage">Player ${data.num}'s score is: ${data.score}</div>`;
+    else if(data.hash === data.myHash) {
+      //content.innerHTML = 'You lose!';
+      let results = document.querySelector('#results');
+      results.innerHTML += `<div class="endingMessage">Player ${data.num} dropped the potate and lost!</div>`;
+      if(data.hash === hash) content.innerHTML = 'You lose!';
+    } else {
+      if(data.score <= myScore){
+        content.innerHTML = 'You win!';
+      } else if(myScore === 0) {
+        content.innerHTML = 'You lose!';
+      } else {
+        content.innerHTML = 'You lived!';
+      }
+      let results = document.querySelector('#results');
+      results.innerHTML += `<div class="endingMessage">Player ${data.num}'s score is: ${data.score}</div>`;
+    }
   }
+  
   
   console.log('removing canvas');
   // turn off eventListeners

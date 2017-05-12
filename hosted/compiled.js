@@ -90,7 +90,7 @@ var displayPotato = function displayPotato() {
   ctx.font = '60px serif';
   ctx.fillStyle = '#D9865D';
   ctx.beginPath();
-  ctx.arc(CWHALF, CHHALF, 100, 0, 2 * Math.PI);
+  ctx.arc(CWHALF, CHHALF, 200, 0, 2 * Math.PI);
   ctx.stroke();
   ctx.fill();
 
@@ -337,6 +337,7 @@ var wDown = void 0,
     aDown = void 0,
     sDown = void 0,
     dDown = void 0;
+var displayMessageCount = 0;
 
 var CANVASWIDTH = 800;
 var CWHALF = 400;
@@ -359,6 +360,9 @@ var logout = function logout() {
 };
 
 var endGame = function endGame(data) {
+
+  displayMessageCount++;
+
   var content = document.querySelector('#mainMessage');
 
   ctx.clearRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
@@ -366,23 +370,25 @@ var endGame = function endGame(data) {
   console.log("Player " + data.hash + " dropped the potate");
   console.log("I am " + hash);
 
-  if (data.hash === null) {
-    content.innerHTML = 'Oh no, someone left!';
-  } else if (data.hash === data.myHash) {
-    //content.innerHTML = 'You lose!';
-    var results = document.querySelector('#results');
-    results.innerHTML += '<div class="endingMessage">Player ' + data.num + ' dropped the potate and lost!</div>';
-    if (data.hash === hash) content.innerHTML = 'You lose!';
-  } else {
-    if (data.score <= myScore) {
-      content.innerHTML = 'You win!';
-    } else if (myScore === 0) {
-      content.innerHTML = 'You lose!';
+  if (displayMessageCount > 3) {
+    if (data.hash === null) {
+      content.innerHTML = 'Oh no, someone left!';
+    } else if (data.hash === data.myHash) {
+      //content.innerHTML = 'You lose!';
+      var results = document.querySelector('#results');
+      results.innerHTML += '<div class="endingMessage">Player ' + data.num + ' dropped the potate and lost!</div>';
+      if (data.hash === hash) content.innerHTML = 'You lose!';
     } else {
-      content.innerHTML = 'You lived!';
+      if (data.score <= myScore) {
+        content.innerHTML = 'You win!';
+      } else if (myScore === 0) {
+        content.innerHTML = 'You lose!';
+      } else {
+        content.innerHTML = 'You lived!';
+      }
+      var _results = document.querySelector('#results');
+      _results.innerHTML += '<div class="endingMessage">Player ' + data.num + '\'s score is: ' + data.score + '</div>';
     }
-    var _results = document.querySelector('#results');
-    _results.innerHTML += '<div class="endingMessage">Player ' + data.num + '\'s score is: ' + data.score + '</div>';
   }
 
   console.log('removing canvas');

@@ -1,6 +1,9 @@
 {
   "name": "590-project3",
   "version": "1.0.0",
+  "engines": {
+    "node": "7.4.0"
+  },
   "description": "Hot potato!!!!",
   "main": "index.js",
   "scripts": {

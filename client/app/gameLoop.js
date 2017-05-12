@@ -89,7 +89,7 @@ const displayPotato = () => {
   ctx.font = '60px serif';
   ctx.fillStyle = '#D9865D';
   ctx.beginPath();
-  ctx.arc(CWHALF, CHHALF, 100, 0, 2 * Math.PI);
+  ctx.arc(CWHALF, CHHALF, 200, 0, 2 * Math.PI);
   ctx.stroke();
   ctx.fill();
   
