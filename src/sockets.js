@@ -63,6 +63,7 @@ const setupSockets = (ioServer) => {
     });
 
     socket.on('fail', (data) => {
+      console.log('Hash: ' + data.hash);
       io.sockets.in(data.room).emit('askPoints', { hash: data.hash });
     });
 

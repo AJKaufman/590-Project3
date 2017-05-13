@@ -65,6 +65,7 @@
       }
       
       #playAgain {
+        padding-top: 30px;
         transition: fadein 2s;
       }
       
@@ -94,7 +95,12 @@
       #instructions {
         font-size: 1.5em;
         width: 66%;
-        margin: auto;
+        display: inline-block;
+      }
+      
+      #instructions div {
+        margin-top: 10px;
+        margin-bottom: 20px;
       }
       
       #joinButton {
@@ -102,22 +108,6 @@
         width: 66%;
         margin: 20px;
         margin: auto;
-      }
-      
-      #hostRoomButton {
-        margin: 20px;
-        padding-top: 1%;
-        width: 66%;
-        margin: auto;
-      }
-      
-      #joinRoomButton {
-        margin: 20px;
-        padding-top: 1%;
-        width: 66%;
-        margin: auto;
-        padding-bottom: 2%;
-        margin-bottom: 1.5em;
       }
       
       .title {
@@ -172,6 +162,10 @@
     <div id="joinButton">
       <input type="button" value="Find me a game!">    
     </div>
+    <div id="instructions">
+      <input type="button" value="Instructions">
+    </div>
+    
   <!--
     <div id="logoutButton">
       <input type="button" value="Logout">
@@ -188,7 +182,7 @@
     </div>
   
     <div id="advertisement">
-      This is where I would place and advertisement
+      Advertisement would go here
     </div>
 </body>
 </html>

@@ -163,7 +163,10 @@ var update = function update(letter) {
   framesPassedSinceLetter++;
 
   if (framesPassedSinceLetter > timeToPress) {
+    console.log('Hash: ' + hash);
+    myScore = 0;
     socket.emit('fail', { room: room, hash: hash });
+    return;
   }
 
   // if they pressed the right button, display the next letter
@@ -185,6 +188,7 @@ var update = function update(letter) {
 };
 
 var sendPoints = function sendPoints(data) {
+  console.log('Hash: ' + data.hash);
   canPass = false;
   highScore = myScore; // give the high score a base to start off at
   socket.emit('myScore', { myHash: hash, hash: data.hash, myScore: myScore, room: room, myNum: myNum });
@@ -361,6 +365,8 @@ var CHHALF = 200;
 
 var joinGame = function joinGame() {
   console.log('join GAME clicked');
+  var instructions = document.querySelector('#instructions');
+  instructions.innerHTML = '';
   var button = document.querySelector('#joinButton');
   button.innerHTML = '';
   document.querySelector('#joinButton').onclick = false;
@@ -388,16 +394,15 @@ var endGame = function endGame(data) {
   if (data.hash === null && GameOver === false) {
     content.innerHTML = 'Oh no, someone left!';
   } else if (data.hash === data.myHash) {
-    //content.innerHTML = 'You lose!';
     var results = document.querySelector('#results');
-    results.innerHTML += '<div class="endingMessage">Player ' + data.num + ' dropped the potate and lost!</div>';
+    results.innerHTML += '<div class="endingMessage">Player ' + data.num + ' got burned and lost!</div>';
     if (data.hash === hash) content.innerHTML = 'You lose!';
   } else if (data.hash !== null) {
-    if (highScore <= myScore) {
+    if (myScore === 0) {
+      content.innerHTML = 'You lose!';
+    } else if (highScore <= myScore) {
       highScore = myScore;
       content.innerHTML = 'You win!';
-    } else if (myScore === 0) {
-      content.innerHTML = 'You lose!';
     } else {
       content.innerHTML = 'You lived!';
     }
@@ -429,6 +434,15 @@ var mainMenu = function mainMenu() {
   content.innerHTML = "";
 };
 
+// displaying instructions
+var displayInstructions = function displayInstructions() {
+  var instructions = document.querySelector('#instructions');
+  instructions.innerHTML = "<div>Goal: Get the most points, and don't get burned!</div>";
+  instructions.innerHTML += "<div>Getting burned: You get burned by pressing the wrong button, or letting the timer hit the right side of the screen!</div>";
+  instructions.innerHTML += "<div>Getting points: When you have the potate, press the buttons on the left side of the screen.</div>";
+  instructions.innerHTML += "<div>Be warned: The more you press the correct buttons, the faster you have to react!</div>";
+};
+
 // reload the page
 var playAgain = function playAgain() {
   console.log('reloading');
@@ -451,6 +465,7 @@ var init = function init() {
 
     //document.querySelector('#logoutButton').onclick = logout;
     document.querySelector('#joinButton').onclick = joinGame;
+    document.querySelector('#instructions').onclick = displayInstructions;
     //    document.querySelector('.mmNav').onclick = sendAjax("GET", '/', null, redirect);
     //    document.querySelector('.hpNav').onclick = sendAjax("GET", '/', null, redirect);
     //document.querySelector('#instructions');

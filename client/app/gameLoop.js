@@ -163,7 +163,10 @@ const update = (letter) => {
   
   
   if(framesPassedSinceLetter > timeToPress) {
+    console.log('Hash: ' + hash);
+    myScore = 0;
     socket.emit('fail', { room: room, hash: hash });
+    return;
   }
   
   // if they pressed the right button, display the next letter
@@ -184,6 +187,7 @@ const update = (letter) => {
 };
 
 const sendPoints = (data) => {
+  console.log('Hash: ' + data.hash);
   canPass = false;
   highScore = myScore; // give the high score a base to start off at
   socket.emit('myScore', { myHash: hash, hash: data.hash, myScore: myScore, room: room, myNum: myNum });

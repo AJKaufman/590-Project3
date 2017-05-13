@@ -35,6 +35,8 @@ const CHHALF = 200;
 
 const joinGame = () => {
   console.log('join GAME clicked');
+  let instructions = document.querySelector('#instructions');
+  instructions.innerHTML = '';
   const button = document.querySelector('#joinButton');
   button.innerHTML = '';
   document.querySelector('#joinButton').onclick = false;
@@ -63,16 +65,15 @@ const endGame = (data) => {
       content.innerHTML = 'Oh no, someone left!';
     }
     else if(data.hash === data.myHash) {
-      //content.innerHTML = 'You lose!';
       let results = document.querySelector('#results');
-      results.innerHTML += `<div class="endingMessage">Player ${data.num} dropped the potate and lost!</div>`;
+      results.innerHTML += `<div class="endingMessage">Player ${data.num} got burned and lost!</div>`;
       if(data.hash === hash) content.innerHTML = 'You lose!';
     } else if(data.hash !== null) {
-      if(highScore <= myScore){
+      if(myScore === 0) {
+        content.innerHTML = 'You lose!';
+      } else if(highScore <= myScore){
         highScore = myScore;
         content.innerHTML = 'You win!';
-      } else if(myScore === 0) {
-        content.innerHTML = 'You lose!';
       } else {
         content.innerHTML = 'You lived!';
       }
@@ -105,6 +106,15 @@ const mainMenu = () => {
   content.innerHTML = "";
 };
 
+// displaying instructions
+const displayInstructions = () => {
+  let instructions = document.querySelector('#instructions');
+  instructions.innerHTML = "<div>Goal: Get the most points, and don't get burned!</div>";
+  instructions.innerHTML += "<div>Getting burned: You get burned by pressing the wrong button, or letting the timer hit the right side of the screen!</div>";
+  instructions.innerHTML += "<div>Getting points: When you have the potate, press the buttons on the left side of the screen.</div>";
+  instructions.innerHTML += "<div>Be warned: The more you press the correct buttons, the faster you have to react!</div>";
+};
+
 // reload the page
 const playAgain = () => {
   console.log('reloading');
@@ -127,6 +137,7 @@ const init = () => {
 
     //document.querySelector('#logoutButton').onclick = logout;
     document.querySelector('#joinButton').onclick = joinGame;
+    document.querySelector('#instructions').onclick = displayInstructions;
 //    document.querySelector('.mmNav').onclick = sendAjax("GET", '/', null, redirect);
 //    document.querySelector('.hpNav').onclick = sendAjax("GET", '/', null, redirect);
     //document.querySelector('#instructions');
