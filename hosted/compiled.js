@@ -54,7 +54,7 @@ var passPotato = function passPotato(data) {
       content.innerHTML = '<div>You have the potato!</div>';
       setTimeout(displayPotato, 3000);
     } else {
-      ctx.fillText('Player ' + data.next + ' has the potato', CWHALF - 90, CHHALF);
+      ctx.fillText('Player ' + data.next + ' has the potato', CWHALF - 130, CHHALF);
       content.innerHTML = '<div>Player ' + data.primaryPotato + ' has the potato</div>';
     }
   } else {
@@ -66,7 +66,7 @@ var passPotato = function passPotato(data) {
       canPass = false;
       setTimeout(displayPotato, 3000);
     } else {
-      ctx.fillText('Player ' + data.next + ' has the potato', CWHALF - 90, CHHALF);
+      ctx.fillText('Player ' + data.next + ' has the potato', CWHALF - 130, CHHALF);
       content.innerHTML = '<div>Player ' + data.next + ' has the potato</div>';
     }
   }
@@ -146,8 +146,19 @@ var displayLetter = function displayLetter(randomNum) {
 // checks for button presses
 var update = function update(letter) {
 
-  ctx.fillStyle = '#D9865D';
+  // animates the heat meter
+  ctx.fillStyle = '#CE100B';
   ctx.fillRect(framesPassedSinceLetter / timeToPress * CANVASWIDTH, 0, 30, 30);
+
+  // displays 'HOT' on the screen indicating that the potate is hot
+  if (framesPassedSinceLetter % 60 === 0) {
+
+    var randX = Math.abs(Math.random() * CANVASWIDTH - 300);
+    randX += 100;
+    var randY = Math.abs(Math.random() * CANVASHEIGHT - 200);
+    randY += 75;
+    ctx.fillText('HOT', randX, randY);
+  }
 
   framesPassedSinceLetter++;
 
@@ -163,18 +174,19 @@ var update = function update(letter) {
       timeToPress *= 0.9;
     }
 
-    myScore += 10;
+    myScore += 10; // correct! Gain 10 points
 
     framesPassedSinceLetter = 0;
     correctPress = false;
     displayPotato();
-  } else if (canPass) {
+  } else if (canPass && !GameOver) {
     requestAnimationFrame(update);
   }
 };
 
 var sendPoints = function sendPoints(data) {
   canPass = false;
+  highScore = myScore; // give the high score a base to start off at
   socket.emit('myScore', { myHash: hash, hash: data.hash, myScore: myScore, room: room, myNum: myNum });
 };
 
@@ -236,6 +248,7 @@ var keyDownHandler = function keyDownHandler(e) {
               ctx.clearRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
               framesPassedSinceLetter = 0; // reset the frames to lose
               canPass = false;
+              console.log('passing');
               socket.emit('pass', { room: room, hash: hash, myNum: myNum });
             } else {
               console.log(potatoPossessor + " is the potatoPossessor, and I am " + myNum);
@@ -320,6 +333,7 @@ var room = void 0;
 var myNum = void 0;
 var players = {}; //character list'
 var potatoPossessor = void 0;
+var GameOver = false;
 
 var animationFrame = void 0;
 var frameCounter = void 0;
@@ -333,6 +347,7 @@ var potatoPrompt = void 0;
 var potateImg = void 0;
 var framesPassedSinceLetter = void 0;
 var myScore = void 0;
+var highScore = void 0;
 var wDown = void 0,
     aDown = void 0,
     sDown = void 0,
@@ -361,34 +376,34 @@ var logout = function logout() {
 
 var endGame = function endGame(data) {
 
-  displayMessageCount++;
-
   var content = document.querySelector('#mainMessage');
 
   ctx.clearRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
 
-  console.log("Player " + data.hash + " dropped the potate");
-  console.log("I am " + hash);
+  // increases the high score for better winner logic
+  if (data.score >= highScore) {
+    highScore = data.score;
+  }
 
-  if (displayMessageCount > 3) {
-    if (data.hash === null) {
-      content.innerHTML = 'Oh no, someone left!';
-    } else if (data.hash === data.myHash) {
-      //content.innerHTML = 'You lose!';
-      var results = document.querySelector('#results');
-      results.innerHTML += '<div class="endingMessage">Player ' + data.num + ' dropped the potate and lost!</div>';
-      if (data.hash === hash) content.innerHTML = 'You lose!';
+  if (data.hash === null && GameOver === false) {
+    content.innerHTML = 'Oh no, someone left!';
+  } else if (data.hash === data.myHash) {
+    //content.innerHTML = 'You lose!';
+    var results = document.querySelector('#results');
+    results.innerHTML += '<div class="endingMessage">Player ' + data.num + ' dropped the potate and lost!</div>';
+    if (data.hash === hash) content.innerHTML = 'You lose!';
+  } else if (data.hash !== null) {
+    if (highScore <= myScore) {
+      highScore = myScore;
+      content.innerHTML = 'You win!';
+    } else if (myScore === 0) {
+      content.innerHTML = 'You lose!';
     } else {
-      if (data.score <= myScore) {
-        content.innerHTML = 'You win!';
-      } else if (myScore === 0) {
-        content.innerHTML = 'You lose!';
-      } else {
-        content.innerHTML = 'You lived!';
-      }
-      var _results = document.querySelector('#results');
-      _results.innerHTML += '<div class="endingMessage">Player ' + data.num + '\'s score is: ' + data.score + '</div>';
+      content.innerHTML = 'You lived!';
     }
+    GameOver = true;
+    var _results = document.querySelector('#results');
+    _results.innerHTML += '<div class="endingMessage">Player ' + data.num + '\'s score is: ' + data.score + '</div>';
   }
 
   console.log('removing canvas');
@@ -436,7 +451,7 @@ var init = function init() {
 
     //document.querySelector('#logoutButton').onclick = logout;
     document.querySelector('#joinButton').onclick = joinGame;
-    //    document.querySelector('.mmNav').onclick = sendAjax("GET", '/', null, redirect);;
+    //    document.querySelector('.mmNav').onclick = sendAjax("GET", '/', null, redirect);
     //    document.querySelector('.hpNav').onclick = sendAjax("GET", '/', null, redirect);
     //document.querySelector('#instructions');
   });

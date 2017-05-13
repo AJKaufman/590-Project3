@@ -52,7 +52,7 @@ const passPotato = (data) => {
       content.innerHTML = `<div>You have the potato!</div>`
       setTimeout(displayPotato, 3000);
     } else {
-      ctx.fillText(`Player ${data.next} has the potato`, CWHALF - 90, CHHALF);
+      ctx.fillText(`Player ${data.next} has the potato`, CWHALF - 130, CHHALF);
       content.innerHTML = `<div>Player ${data.primaryPotato} has the potato</div>`;
     }
   } else { // it is not the first round
@@ -63,7 +63,7 @@ const passPotato = (data) => {
       canPass = false;
       setTimeout(displayPotato, 3000);
     } else {
-      ctx.fillText(`Player ${data.next} has the potato`, CWHALF - 90, CHHALF);
+      ctx.fillText(`Player ${data.next} has the potato`, CWHALF - 130, CHHALF);
       content.innerHTML = `<div>Player ${data.next} has the potato</div>`;
     }
   }
@@ -145,10 +145,22 @@ const displayLetter = (randomNum) => {
 // checks for button presses
 const update = (letter) => {
   
-  ctx.fillStyle = '#D9865D';
+  // animates the heat meter
+  ctx.fillStyle = '#CE100B';
   ctx.fillRect((framesPassedSinceLetter / timeToPress) * CANVASWIDTH, 0, 30, 30);
   
+  // displays 'HOT' on the screen indicating that the potate is hot
+  if(framesPassedSinceLetter % 60 === 0) {
+    
+    let randX = Math.abs(Math.random() * CANVASWIDTH - 300);
+    randX += 100;
+    let randY = Math.abs(Math.random() * CANVASHEIGHT - 200);
+    randY += 75;
+    ctx.fillText('HOT', randX, randY);
+  }
+  
   framesPassedSinceLetter++;
+  
   
   if(framesPassedSinceLetter > timeToPress) {
     socket.emit('fail', { room: room, hash: hash });
@@ -161,18 +173,19 @@ const update = (letter) => {
       timeToPress *= 0.9;
     }
     
-    myScore += 10;
+    myScore += 10; // correct! Gain 10 points
     
     framesPassedSinceLetter = 0;
     correctPress = false;
     displayPotato();
-  } else if (canPass) {
+  } else if (canPass && !(GameOver)) {
     requestAnimationFrame(update);
   }
 };
 
 const sendPoints = (data) => {
   canPass = false;
+  highScore = myScore; // give the high score a base to start off at
   socket.emit('myScore', { myHash: hash, hash: data.hash, myScore: myScore, room: room, myNum: myNum });
 };
 
@@ -234,6 +247,7 @@ const keyDownHandler = (e) => {
       ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT);
       framesPassedSinceLetter = 0; // reset the frames to lose
       canPass = false;
+      console.log('passing');
       socket.emit('pass', { room: room, hash: hash, myNum: myNum, });
     } else {
       console.log(potatoPossessor + " is the potatoPossessor, and I am " + myNum);

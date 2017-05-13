@@ -8,6 +8,7 @@ let room;
 let myNum;
 let players = {}; //character list'
 let potatoPossessor;
+let GameOver = false;
 
 
 let animationFrame;
@@ -22,6 +23,7 @@ let potatoPrompt;
 let potateImg;
 let framesPassedSinceLetter;
 let myScore;
+let highScore;
 let wDown, aDown, sDown, dDown;
 let displayMessageCount = 0;
 
@@ -47,18 +49,17 @@ const logout = () => {
 };
  
 const endGame = (data) => {
-  
-  displayMessageCount++;
-  
+    
   let content = document.querySelector('#mainMessage');
   
   ctx.clearRect(0,0,CANVASWIDTH,CANVASHEIGHT);
   
-  console.log("Player " + data.hash + " dropped the potate");
-  console.log("I am " + hash);
+  // increases the high score for better winner logic
+  if(data.score >= highScore) {
+    highScore = data.score;
+  }
   
-  if(displayMessageCount > 3){
-    if(data.hash === null) {
+    if(data.hash === null && GameOver === false) {
       content.innerHTML = 'Oh no, someone left!';
     }
     else if(data.hash === data.myHash) {
@@ -66,18 +67,19 @@ const endGame = (data) => {
       let results = document.querySelector('#results');
       results.innerHTML += `<div class="endingMessage">Player ${data.num} dropped the potate and lost!</div>`;
       if(data.hash === hash) content.innerHTML = 'You lose!';
-    } else {
-      if(data.score <= myScore){
+    } else if(data.hash !== null) {
+      if(highScore <= myScore){
+        highScore = myScore;
         content.innerHTML = 'You win!';
       } else if(myScore === 0) {
         content.innerHTML = 'You lose!';
       } else {
         content.innerHTML = 'You lived!';
       }
+      GameOver = true;
       let results = document.querySelector('#results');
       results.innerHTML += `<div class="endingMessage">Player ${data.num}'s score is: ${data.score}</div>`;
     }
-  }
   
   
   console.log('removing canvas');
@@ -125,7 +127,7 @@ const init = () => {
 
     //document.querySelector('#logoutButton').onclick = logout;
     document.querySelector('#joinButton').onclick = joinGame;
-//    document.querySelector('.mmNav').onclick = sendAjax("GET", '/', null, redirect);;
+//    document.querySelector('.mmNav').onclick = sendAjax("GET", '/', null, redirect);
 //    document.querySelector('.hpNav').onclick = sendAjax("GET", '/', null, redirect);
     //document.querySelector('#instructions');
   });
