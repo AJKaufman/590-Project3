@@ -242,8 +242,8 @@ var keyDownHandler = function keyDownHandler(e) {
             socket.emit('fail', { room: room, hash: hash });
           }
         }
-        //Space key was pressed
-        else if (keyPressed === 32) {
+        //tab key was pressed
+        else if (keyPressed === 9) {
             if (potatoPossessor === myNum && canPass) {
 
               document.body.removeEventListener('keydown', keyDownHandler);
@@ -441,7 +441,7 @@ var displayInstructions = function displayInstructions() {
   instructions.innerHTML += "<div>Getting burned: You get burned by pressing the wrong button, or letting the timer hit the right side of the screen!</div>";
   instructions.innerHTML += "<div>Getting points: When you have the potate, press the buttons on the left side of the screen.</div>";
   instructions.innerHTML += "<div>Be warned: The more you press the correct buttons, the faster you have to react!</div>";
-  instructions.innerHTML += "<div>Press the space bar to pass the potato to the next player and cool down!</div>";
+  instructions.innerHTML += "<div>Press the tab button to pass the potato to the next player and cool down!</div>";
 };
 
 // reload the page

@@ -241,8 +241,8 @@ const keyDownHandler = (e) => {
       socket.emit('fail', { room: room, hash: hash });
     }
   }
-  //Space key was pressed
-  else if(keyPressed === 32) {
+  //tab key was pressed
+  else if(keyPressed === 9) {
     if(potatoPossessor === myNum && canPass) {
       
       document.body.removeEventListener('keydown', keyDownHandler);
