@@ -113,6 +113,7 @@ const displayInstructions = () => {
   instructions.innerHTML += "<div>Getting burned: You get burned by pressing the wrong button, or letting the timer hit the right side of the screen!</div>";
   instructions.innerHTML += "<div>Getting points: When you have the potate, press the buttons on the left side of the screen.</div>";
   instructions.innerHTML += "<div>Be warned: The more you press the correct buttons, the faster you have to react!</div>";
+  instructions.innerHTML += "<div>Press the space bar to pass the potato to the next player and cool down!</div>";
 };
 
 // reload the page
