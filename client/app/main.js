@@ -11,6 +11,7 @@ let players = {}; //character list'
 let potatoPossessor;
 let GameOver = false;
 let finalData;
+let endMessage;
 
 
 let animationFrame;
@@ -159,12 +160,12 @@ const endGame = () => {
       if(finalData.hash === hash) content.innerHTML = 'You lose!';
     } else if(finalData.hash !== null) {
       if(myScore === 0) {
-        content.innerHTML = 'You lose!';
+        endMessage = 'You lose!';
       } else if(highScore <= myScore){
         highScore = myScore;
-        content.innerHTML = 'You win!';
+        endMessage = 'You win!';
       } else {
-        content.innerHTML = 'You lived!';
+        endMessage = 'You lived!';
       }
       GameOver = true;
       let results = document.querySelector('#results');
@@ -185,8 +186,7 @@ const endGame = () => {
 
 const renderEndMessage = function() {
   return (
-    
-      <div>Doopie doo</div>
+      <input className="playAgain" type="button" defaultValue="Play Again?" />
     );
 };
 
@@ -196,12 +196,12 @@ const createEndMessage = function (data) {
   finalData = data;
   
   const EndMessageWindow = React.createClass({
-    handleEndMessage: endGame,
+    componentDidMount: endGame,
     render: renderEndMessage
   });
     
   ReactDOM.render(
-    <EndMessageWindow csrf={csrf} />,
+    <EndMessageWindow />,
     document.querySelector("#content")
   );
 };

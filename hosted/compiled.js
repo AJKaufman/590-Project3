@@ -340,6 +340,7 @@ var players = {}; //character list'
 var potatoPossessor = void 0;
 var GameOver = false;
 var finalData = void 0;
+var endMessage = void 0;
 
 var animationFrame = void 0;
 var frameCounter = void 0;
@@ -507,12 +508,12 @@ var endGame = function endGame() {
     if (finalData.hash === hash) content.innerHTML = 'You lose!';
   } else if (finalData.hash !== null) {
     if (myScore === 0) {
-      content.innerHTML = 'You lose!';
+      endMessage = 'You lose!';
     } else if (highScore <= myScore) {
       highScore = myScore;
-      content.innerHTML = 'You win!';
+      endMessage = 'You win!';
     } else {
-      content.innerHTML = 'You lived!';
+      endMessage = 'You lived!';
     }
     GameOver = true;
     var _results = document.querySelector('#results');
@@ -531,11 +532,7 @@ var endGame = function endGame() {
 };
 
 var renderEndMessage = function renderEndMessage() {
-  return React.createElement(
-    'div',
-    null,
-    'Doopie doo'
-  );
+  return React.createElement('input', { className: 'playAgain', type: 'button', defaultValue: 'Play Again?' });
 };
 
 // displaying instructions
@@ -546,11 +543,11 @@ var createEndMessage = function createEndMessage(data) {
   var EndMessageWindow = React.createClass({
     displayName: 'EndMessageWindow',
 
-    handleEndMessage: endGame,
+    componentDidMount: endGame,
     render: renderEndMessage
   });
 
-  ReactDOM.render(React.createElement(EndMessageWindow, { csrf: csrf }), document.querySelector("#content"));
+  ReactDOM.render(React.createElement(EndMessageWindow, null), document.querySelector("#content"));
 };
 
 var renderLogout = function renderLogout() {
