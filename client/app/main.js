@@ -207,11 +207,6 @@ const endGame = (data) => {
   document.body.removeEventListener('keydown', keyDownHandler);
   document.body.removeEventListener('keyup', keyUpHandler);
   
-//  let mainMenuButton = document.querySelector('#returnToMainMenu');
-//  mainMenuButton.innerHTML = '<form onSubmit="mainMenu()">';
-//  mainMenuButton.innerHTML += '<input class="mainMenu" type="submit" value="Main Menu" />';
-//  mainMenuButton.innerHTML += '</form>';
-  
   let playAgainButton = document.querySelector('#playAgain');
   playAgainButton.innerHTML = '<input class="playAgain" type="button" value="Play Again?" />';
   playAgainButton.onclick = playAgain;

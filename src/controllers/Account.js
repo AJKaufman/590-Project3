@@ -42,7 +42,7 @@ const login = (request, response) => {
 
     req.session.account = Account.AccountModel.toAPI(account);
 
-    return res.json({ redirect: '/' });
+    return res.render('index', { csrfToken: req.csrfToken() });
   });
 };
 
