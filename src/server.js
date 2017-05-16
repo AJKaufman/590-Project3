@@ -96,13 +96,3 @@ server.listen(port, (err) => {
   }
   console.log(`Listening on port ${port}`);
 });
-
-
-//
-// app.listen(port, (err) => {
-//  if (err) {
-//    throw err;
-//  }
-//  console.log(`Listening on port ${port}`);
-// });
-

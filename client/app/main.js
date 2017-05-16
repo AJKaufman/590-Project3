@@ -1,4 +1,5 @@
 // credit to Project2-590 by Aidan Kaufman
+// credit to Lauren Schneider for the potate drawings
 let canvas;
 let ctx;
 
@@ -32,22 +33,142 @@ const CWHALF = 400;
 const CANVASHEIGHT = 400;
 const CHHALF = 200;
 
-
-const joinGame = () => {
+// what to do when the player presses join game
+const handleJoinGame = () => {
   console.log('join GAME clicked');
-  let instructions = document.querySelector('#instructions');
-  instructions.innerHTML = '';
-  const button = document.querySelector('#joinButton');
-  button.innerHTML = '';
-  document.querySelector('#joinButton').onclick = false;
+  
+  // setup the canvas
+  canvas = document.querySelector('#canvas');
+  ctx = canvas.getContext('2d');
+  
   socket.emit('requestAccess', {});
+};
+
+const renderJoinGame = function() {
+  return (
+    <canvas id="canvas" height={400} width={800}>Please use an HTML 5 browser to play Hot Potates!</canvas>
+  );
+};    
+
+const createJoinGame = function (csrf) {
+  const JoinGameWindow = React.createClass({
+    componentDidMount: handleJoinGame,
+    render: renderJoinGame
+  });
+    
+  ReactDOM.render(
+    <JoinGameWindow csrf={csrf} />,
+    document.querySelector("#content")
+  );
+};
+
+const renderSearchButton = function() {
+  return (
+    <form id="searchForm" 
+      onSubmit={this.handleSearch}
+      name="searchForm"
+      action="/"
+      method="GET"
+      className="searchForm"
+    >
+      <input className="logout" type="submit" value="Search for Game" />
+    </form>  
+  );
+};    
+
+const createSearchButton = function (csrf) {
+  const SearchButtonWindow = React.createClass({
+    handleSearch: createJoinGame,
+    render: renderSearchButton
+  });
+    
+  ReactDOM.render(
+    <SearchButtonWindow csrf={csrf} />,
+    document.querySelector("#content")
+  );
+};
+
+const renderMainMenu = function() {
+  return (
+      <h2 className="title">
+        Hot Potates: Don't Drop
+      </h2>
+    );
+};
+
+const clearScreen = function() {
+  let content = document.querySelector("#content");
+  content = "";
+};
+
+const createMainMenu = function (csrf) {
+  const MainMenuWindow = React.createClass({
+    componentDidMount: clearScreen,
+    render: renderMainMenu
+  });
+    
+  ReactDOM.render(
+    <MainMenuWindow csrf={csrf} />,
+    document.querySelector("#titleHere")
+  );
+};
+
+const renderInstructions = function() {
+  return (
+      <div id="instructionsContent">
+        <div>Goal: Get the most points, and don't get burned!</div>
+        <div>Getting burned: You get burned by pressing the wrong button, or letting the timer hit the right side of the screen!</div>
+        <div>Getting points: When you have the potate, press the buttons on the left side of the screen.</div>
+        <div>Be warned: The more you press the correct buttons, the faster you have to react!</div>
+        <div>Press the tab button to pass the potato to the next player and cool down!</div>
+      </div>
+    );
+};
+
+// displaying instructions
+const createInstructions = function (csrf) {
+  const InstructionsWindow = React.createClass({
+    render: renderInstructions
+  });
+    
+  ReactDOM.render(
+    <InstructionsWindow csrf={csrf} />,
+    document.querySelector("#content")
+  );
+};
+
+const renderLogout = function() {
+  return (
+    
+      <form id="logoutForm" 
+      onSubmit={this.handleLogout}
+      name="logoutForm"
+      action="/logout"
+      method="GET"
+      className="logoutForm"
+    >
+      <div id="logoutMessage">Are you sure you want to logout?</div>
+      <input className="logout" type="submit" value="Logout" />
+    </form>  
+    );
+};
+
+// displaying instructions
+const createLogout = function (csrf) {
+  const LogoutWindow = React.createClass({
+    handleLogout: logout,
+    render: renderLogout
+  });
+    
+  ReactDOM.render(
+    <LogoutWindow csrf={csrf} />,
+    document.querySelector("#content")
+  );
 };
 
 const logout = () => {
   console.log('logout clicked');
   sendAjaxHTML('GET', '/logout', null, redirect);
-  // redirect('/logout'); AIDAN
-  // problem is that I don't know how to get the res
 };
  
 const endGame = (data) => {
@@ -106,44 +227,75 @@ const mainMenu = () => {
   content.innerHTML = "";
 };
 
-// displaying instructions
-const displayInstructions = () => {
-  let instructions = document.querySelector('#instructions');
-  instructions.innerHTML = "<div>Goal: Get the most points, and don't get burned!</div>";
-  instructions.innerHTML += "<div>Getting burned: You get burned by pressing the wrong button, or letting the timer hit the right side of the screen!</div>";
-  instructions.innerHTML += "<div>Getting points: When you have the potate, press the buttons on the left side of the screen.</div>";
-  instructions.innerHTML += "<div>Be warned: The more you press the correct buttons, the faster you have to react!</div>";
-  instructions.innerHTML += "<div>Press the tab button to pass the potato to the next player and cool down!</div>";
-};
-
 // reload the page
 const playAgain = () => {
   console.log('reloading');
   location.reload();
 };
 
-const init = () => {
-
+const init = (csrf) => {
+  
   socket = io.connect();
   
   socket.on('connect', () => {
     
-    canvas = document.querySelector('#canvas');
-    ctx = canvas.getContext('2d');
-
     socket.on('joined', setUser);
     socket.on('passingToNext', passPotato);
     socket.on('askPoints', sendPoints);
     socket.on('endingGame', endGame);
-
-    //document.querySelector('#logoutButton').onclick = logout;
-    document.querySelector('#joinButton').onclick = joinGame;
-    document.querySelector('#instructions').onclick = displayInstructions;
-//    document.querySelector('.mmNav').onclick = sendAjax("GET", '/', null, redirect);
-//    document.querySelector('.hpNav').onclick = sendAjax("GET", '/', null, redirect);
-    //document.querySelector('#instructions');
+    
+    const joinButton = document.querySelector('#joinButton');
+    const instructionsButton = document.querySelector('#instructions');
+    const mainMenuButton = document.querySelector('#mainMenuButton');
+    const logoutButton = document.querySelector('#logoutButton');
+    
+    createMainMenu(csrf);
+    
+    mainMenuButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      createMainMenu(csrf);
+      return false;
+    });
+    
+    joinButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      createSearchButton(csrf);
+      return false;
+    });
+    
+    instructionsButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      createInstructions(csrf);
+      return false;
+    });
+    
+    logoutButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      createLogout(csrf);
+      return false;
+    });
+    
   });
   
 };
 
-window.onload = init;
+const getToken = () => {
+  sendAjax("GET", "/getToken", null, (result) => {
+    init(result.csrfToken);
+  });
+};
+
+$(document).ready(function() {
+  getToken();
+});
+
+
+
+
+
+
+
+
+
+
+

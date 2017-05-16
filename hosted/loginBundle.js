@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 // using code from DomoMaker E
 var username = void 0;
@@ -25,6 +25,23 @@ var sendAjax = function sendAjax(type, action, data, success) {
     error: function error(xhr, status, _error) {
 
       var messageObj = JSON.parse(xhr.responseText);
+      handleError(messageObj.error);
+    }
+  });
+};
+
+var sendAjaxHTML = function sendAjaxHTML(type, action, data, success) {
+  $.ajax({
+
+    cache: false,
+    type: type,
+    url: action,
+    data: data,
+    dataType: 'html',
+    success: success,
+    error: function error(xhr, status, _error2) {
+
+      var messageObj = xhr.responseText;
       handleError(messageObj.error);
     }
   });
@@ -62,74 +79,74 @@ var handleSignup = function handleSignup(e) {
   pass = $("#pass").val();
   console.log("Username = " + username + " Pass = " + pass);
 
-  console.dir($("#signupForm").serialize());
-  sendAjax("POST", $("#signupForm").attr("action"), $("#signupForm").serialize(), redirect);
+  //console.dir($("#signupForm").serialize());
+  sendAjaxHTML("POST", $("#signupForm").attr("action"), $("#signupForm").serialize(), redirect);
 
   return false;
 };
 
 var renderLogin = function renderLogin() {
   return React.createElement(
-    "form",
-    { id: "loginForm", name: "loginForm",
+    'form',
+    { id: 'loginForm', name: 'loginForm',
       onSubmit: this.handleSubmit,
-      action: "/login",
-      method: "POST",
-      className: "mainForm"
+      action: '/login',
+      method: 'POST',
+      className: 'mainForm'
     },
     React.createElement(
-      "label",
-      { htmlFor: "username" },
-      "Username: "
+      'label',
+      { htmlFor: 'username' },
+      'Username: '
     ),
-    React.createElement("input", { id: "user", type: "text", name: "username", placeholder: "username" }),
+    React.createElement('input', { id: 'user', type: 'text', name: 'username', placeholder: 'username' }),
     React.createElement(
-      "label",
-      { htmlFor: "pass" },
-      "Password: "
+      'label',
+      { htmlFor: 'pass' },
+      'Password: '
     ),
-    React.createElement("input", { id: "pass", type: "password", name: "pass", placeholder: "password" }),
-    React.createElement("input", { type: "hidden", name: "_csrf", value: this.props.csrf }),
-    React.createElement("input", { className: "formSubmit", type: "submit", value: "Sign in" })
+    React.createElement('input', { id: 'pass', type: 'password', name: 'pass', placeholder: 'password' }),
+    React.createElement('input', { type: 'hidden', name: '_csrf', value: this.props.csrf }),
+    React.createElement('input', { className: 'formSubmit', type: 'submit', value: 'Sign in' })
   );
 };
 
 var renderSignup = function renderSignup() {
   return React.createElement(
-    "form",
-    { id: "signupForm",
-      name: "signupForm",
+    'form',
+    { id: 'signupForm',
+      name: 'signupForm',
       onSubmit: this.handleSubmit,
-      action: "/signup",
-      method: "POST",
-      className: "mainForm"
+      action: '/signup',
+      method: 'POST',
+      className: 'mainForm'
     },
     React.createElement(
-      "label",
-      { htmlFor: "username" },
-      "Username: "
+      'label',
+      { htmlFor: 'username' },
+      'Username: '
     ),
-    React.createElement("input", { id: "user", type: "text", name: "username", placeholder: "username" }),
+    React.createElement('input', { id: 'user', type: 'text', name: 'username', placeholder: 'username' }),
     React.createElement(
-      "label",
-      { htmlFor: "pass" },
-      "Password: "
+      'label',
+      { htmlFor: 'pass' },
+      'Password: '
     ),
-    React.createElement("input", { id: "pass", type: "password", name: "pass", placeholder: "password" }),
+    React.createElement('input', { id: 'pass', type: 'password', name: 'pass', placeholder: 'password' }),
     React.createElement(
-      "label",
-      { htmlFor: "pass2" },
-      "Password: "
+      'label',
+      { htmlFor: 'pass2' },
+      'Pass 2: '
     ),
-    React.createElement("input", { id: "pass2", type: "password", name: "pass2", placeholder: "retype password" }),
-    React.createElement("input", { type: "hidden", name: "_csrf", value: this.props.csrf }),
-    React.createElement("input", { className: "formSubmit", type: "submit", value: "Sign Up" })
+    React.createElement('input', { id: 'pass2', type: 'password', name: 'pass2', placeholder: 'retype password' }),
+    React.createElement('input', { type: 'hidden', name: '_csrf', value: this.props.csrf }),
+    React.createElement('input', { className: 'formSubmit', type: 'submit', value: 'Sign Up' })
   );
 };
 
 var createLoginWindow = function createLoginWindow(csrf) {
   var LoginWindow = React.createClass({
-    displayName: "LoginWindow",
+    displayName: 'LoginWindow',
 
     handleSubmit: handleLogin,
     render: renderLogin
@@ -140,13 +157,11 @@ var createLoginWindow = function createLoginWindow(csrf) {
 
 var createSignupWindow = function createSignupWindow(csrf) {
   var SignupWindow = React.createClass({
-    displayName: "SignupWindow",
+    displayName: 'SignupWindow',
 
     handleSubmit: handleSignup,
     render: renderSignup
   });
-
-  console.log('creating signup window');
 
   ReactDOM.render(React.createElement(SignupWindow, { csrf: csrf }), document.querySelector("#content"));
 };

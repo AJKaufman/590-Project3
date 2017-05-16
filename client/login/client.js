@@ -28,6 +28,23 @@ const sendAjax = (type, action, data, success) => {
   });  
 };
 
+const sendAjaxHTML = (type, action, data, success) => {
+  $.ajax({
+     
+    cache: false,
+    type: type,
+    url: action,
+    data: data,
+    dataType: 'html',
+    success: success,
+    error: function(xhr, status, error) {
+      
+      const messageObj = xhr.responseText;
+      handleError(messageObj.error);
+    }
+  });  
+};
+
 const handleLogin = (e) => {
   e.preventDefault();
   
@@ -63,8 +80,8 @@ const handleSignup = (e) => {
   pass = $("#pass").val();
   console.log("Username = " + username + " Pass = " + pass);
   
-  console.dir($("#signupForm").serialize());
-  sendAjax("POST", $("#signupForm").attr("action"), $("#signupForm").serialize(), redirect);
+  //console.dir($("#signupForm").serialize());
+  sendAjaxHTML("POST", $("#signupForm").attr("action"), $("#signupForm").serialize(), redirect);
   
   return false;
 };
@@ -100,7 +117,7 @@ const renderSignup = function() {
     <input id="user" type="text" name="username" placeholder="username"/>
     <label htmlFor="pass">Password: </label>
     <input id="pass" type="password" name="pass" placeholder="password"/>
-    <label htmlFor="pass2">Password: </label>
+    <label htmlFor="pass2">Pass 2: </label>
     <input id="pass2" type="password" name="pass2" placeholder="retype password"/>
     <input type="hidden" name="_csrf" value={this.props.csrf} />
     <input className="formSubmit" type="submit" value="Sign Up" />
@@ -126,9 +143,7 @@ const createSignupWindow = function (csrf) {
     handleSubmit: handleSignup,
     render: renderSignup
   });
-  
-  console.log('creating signup window');
-  
+    
   ReactDOM.render(
     <SignupWindow csrf={csrf} />,
     document.querySelector("#content")

@@ -117,7 +117,7 @@ const displayLetter = (randomNum) => {
     });
   } else if(randomNum === 1) {
     ctx.fillText('A', 0, 100);
-    potateImg.src = '../assets/img/face.png';
+    potateImg.src = '../assets/img/potate2.png';
     ctx.drawImage(potateImg, CWHALF / 1.8, 0);
     currentLetter = 'a';
     requestAnimationFrame(() => {

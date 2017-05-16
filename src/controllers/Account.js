@@ -13,6 +13,11 @@ const gamePage = (req, res) => {
   res.render('index', { csrfToken: req.csrfToken() });
 };
 
+// display the game page
+const mainMenuPage = (req, res) => {
+  res.render('mainMenu', { csrfToken: req.csrfToken() });
+};
+
 const logout = (req, res) => {
   req.session.destroy();
   res.redirect('/');
@@ -102,6 +107,7 @@ const getToken = (request, response) => {
 
 
 module.exports.gamePage = gamePage;
+module.exports.mainMenuPage = mainMenuPage;
 module.exports.loginPage = loginPage;
 module.exports.login = login;
 module.exports.logout = logout;
