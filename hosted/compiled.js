@@ -339,8 +339,6 @@ var myNum = void 0;
 var players = {}; //character list'
 var potatoPossessor = void 0;
 var GameOver = false;
-var finalData = void 0;
-var endMessage = void 0;
 
 var animationFrame = void 0;
 var frameCounter = void 0;
@@ -396,7 +394,6 @@ var createJoinGame = function createJoinGame(csrf) {
   ReactDOM.render(React.createElement(JoinGameWindow, { csrf: csrf }), document.querySelector("#content"));
 };
 
-// renders the button that lets the user search for a game
 var renderSearchButton = function renderSearchButton() {
   return React.createElement(
     'form',
@@ -429,12 +426,10 @@ var renderMainMenu = function renderMainMenu() {
     'Hot Potates: Don\'t Drop'
   );
 };
-
 var clearScreen = function clearScreen() {
   var content = document.querySelector("#content");
   content = "";
 };
-
 var createMainMenu = function createMainMenu(csrf) {
   var MainMenuWindow = React.createClass({
     displayName: 'MainMenuWindow',
@@ -445,7 +440,6 @@ var createMainMenu = function createMainMenu(csrf) {
 
   ReactDOM.render(React.createElement(MainMenuWindow, { csrf: csrf }), document.querySelector("#titleHere"));
 };
-
 var renderInstructions = function renderInstructions() {
   return React.createElement(
     'div',
@@ -489,67 +483,6 @@ var createInstructions = function createInstructions(csrf) {
   ReactDOM.render(React.createElement(InstructionsWindow, { csrf: csrf }), document.querySelector("#content"));
 };
 
-var endGame = function endGame() {
-
-  var content = document.querySelector('#mainMessage');
-
-  ctx.clearRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
-
-  // increases the high score for better winner logic
-  if (finalData.score >= highScore) {
-    highScore = finalData.score;
-  }
-
-  if (finalData.hash === null && GameOver === false) {
-    content.innerHTML = 'Oh no, someone left!';
-  } else if (finalData.hash === finalData.myHash) {
-    var results = document.querySelector('#results');
-    results.innerHTML += '<div class="endingMessage">Player ' + finalData.num + ' got burned and lost!</div>';
-    if (finalData.hash === hash) content.innerHTML = 'You lose!';
-  } else if (finalData.hash !== null) {
-    if (myScore === 0) {
-      endMessage = 'You lose!';
-    } else if (highScore <= myScore) {
-      highScore = myScore;
-      endMessage = 'You win!';
-    } else {
-      endMessage = 'You lived!';
-    }
-    GameOver = true;
-    var _results = document.querySelector('#results');
-    _results.innerHTML += '<div class="endingMessage">Player ' + finalData.num + '\'s score is: ' + finalData.score + '</div>';
-  }
-
-  console.log('removing canvas');
-  // turn off eventListeners
-  $('canvas').remove();
-  document.body.removeEventListener('keydown', keyDownHandler);
-  document.body.removeEventListener('keyup', keyUpHandler);
-
-  var playAgainButton = document.querySelector('#playAgain');
-  playAgainButton.innerHTML = '<input class="playAgain" type="button" value="Play Again?" />';
-  playAgainButton.onclick = playAgain;
-};
-
-var renderEndMessage = function renderEndMessage() {
-  return React.createElement('input', { className: 'playAgain', type: 'button', defaultValue: 'Play Again?' });
-};
-
-// displaying instructions
-var createEndMessage = function createEndMessage(data) {
-
-  finalData = data;
-
-  var EndMessageWindow = React.createClass({
-    displayName: 'EndMessageWindow',
-
-    componentDidMount: endGame,
-    render: renderEndMessage
-  });
-
-  ReactDOM.render(React.createElement(EndMessageWindow, null), document.querySelector("#content"));
-};
-
 var renderLogout = function renderLogout() {
   return React.createElement(
     'form',
@@ -586,6 +519,53 @@ var logout = function logout() {
   sendAjaxHTML('GET', '/logout', null, redirect);
 };
 
+var endGame = function endGame(data) {
+
+  var content = document.querySelector('#mainMessage');
+
+  ctx.clearRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
+
+  // increases the high score for better winner logic
+  if (data.score >= highScore) {
+    highScore = data.score;
+  }
+
+  if (data.hash === null && GameOver === false) {
+    content.innerHTML = 'Oh no, someone left!';
+  } else if (data.hash === data.myHash) {
+    var results = document.querySelector('#results');
+    results.innerHTML += '<div class="endingMessage">Player ' + data.num + ' got burned and lost!</div>';
+    if (data.hash === hash) content.innerHTML = 'You lose!';
+  } else if (data.hash !== null) {
+    if (myScore === 0) {
+      content.innerHTML = 'You lose!';
+    } else if (highScore <= myScore) {
+      highScore = myScore;
+      content.innerHTML = 'You win!';
+    } else {
+      content.innerHTML = 'You lived!';
+    }
+    GameOver = true;
+    var _results = document.querySelector('#results');
+    _results.innerHTML += '<div class="endingMessage">Player ' + data.num + '\'s score is: ' + data.score + '</div>';
+  }
+
+  console.log('removing canvas');
+  // turn off eventListeners
+  $('canvas').remove();
+  document.body.removeEventListener('keydown', keyDownHandler);
+  document.body.removeEventListener('keyup', keyUpHandler);
+
+  //  let mainMenuButton = document.querySelector('#returnToMainMenu');
+  //  mainMenuButton.innerHTML = '<form onSubmit="mainMenu()">';
+  //  mainMenuButton.innerHTML += '<input class="mainMenu" type="submit" value="Main Menu" />';
+  //  mainMenuButton.innerHTML += '</form>';
+
+  var playAgainButton = document.querySelector('#playAgain');
+  playAgainButton.innerHTML = '<input class="playAgain" type="button" value="Play Again?" />';
+  playAgainButton.onclick = playAgain;
+};
+
 // main menu
 var mainMenu = function mainMenu() {
   console.log('main menu');
@@ -608,7 +588,7 @@ var init = function init(csrf) {
     socket.on('joined', setUser);
     socket.on('passingToNext', passPotato);
     socket.on('askPoints', sendPoints);
-    socket.on('endingGame', createEndMessage);
+    socket.on('endingGame', endGame);
 
     var joinButton = document.querySelector('#joinButton');
     var instructionsButton = document.querySelector('#instructions');
