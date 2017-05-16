@@ -325,3 +325,333 @@ var sendAjaxHTML = function sendAjaxHTML(type, action, data, success) {
     }
   });
 };
+'use strict';
+
+// credit to Project2-590 by Aidan Kaufman
+// credit to Lauren Schneider for the potate drawings
+var canvas = void 0;
+var ctx = void 0;
+
+var socket = void 0;
+var hash = void 0;
+var room = void 0;
+var myNum = void 0;
+var players = {}; //character list'
+var potatoPossessor = void 0;
+var GameOver = false;
+var finalData = void 0;
+
+var animationFrame = void 0;
+var frameCounter = void 0;
+
+var timeToPress = void 0;
+var canPass = false;
+var randomNum = void 0;
+var correctPress = void 0;
+var currentLetter = void 0;
+var potatoPrompt = void 0;
+var potateImg = void 0;
+var framesPassedSinceLetter = void 0;
+var myScore = void 0;
+var highScore = void 0;
+var wDown = void 0,
+    aDown = void 0,
+    sDown = void 0,
+    dDown = void 0;
+var displayMessageCount = 0;
+
+var CANVASWIDTH = 800;
+var CWHALF = 400;
+var CANVASHEIGHT = 400;
+var CHHALF = 200;
+
+// what to do when the player presses join game
+var handleJoinGame = function handleJoinGame() {
+  console.log('join GAME clicked');
+
+  // setup the canvas
+  canvas = document.querySelector('#canvas');
+  ctx = canvas.getContext('2d');
+
+  socket.emit('requestAccess', {});
+};
+
+var renderJoinGame = function renderJoinGame() {
+  return React.createElement(
+    'canvas',
+    { id: 'canvas', height: 400, width: 800 },
+    'Please use an HTML 5 browser to play Hot Potates!'
+  );
+};
+
+var createJoinGame = function createJoinGame(csrf) {
+  var JoinGameWindow = React.createClass({
+    displayName: 'JoinGameWindow',
+
+    componentDidMount: handleJoinGame,
+    render: renderJoinGame
+  });
+
+  ReactDOM.render(React.createElement(JoinGameWindow, { csrf: csrf }), document.querySelector("#content"));
+};
+
+// renders the button that lets the user search for a game
+var renderSearchButton = function renderSearchButton() {
+  return React.createElement(
+    'form',
+    { id: 'searchForm',
+      onSubmit: this.handleSearch,
+      name: 'searchForm',
+      action: '/',
+      method: 'GET',
+      className: 'searchForm'
+    },
+    React.createElement('input', { className: 'logout', type: 'submit', value: 'Search for Game' })
+  );
+};
+
+var createSearchButton = function createSearchButton(csrf) {
+  var SearchButtonWindow = React.createClass({
+    displayName: 'SearchButtonWindow',
+
+    handleSearch: createJoinGame,
+    render: renderSearchButton
+  });
+
+  ReactDOM.render(React.createElement(SearchButtonWindow, { csrf: csrf }), document.querySelector("#content"));
+};
+
+var renderMainMenu = function renderMainMenu() {
+  return React.createElement(
+    'h2',
+    { className: 'title' },
+    'Hot Potates: Don\'t Drop'
+  );
+};
+
+var clearScreen = function clearScreen() {
+  var content = document.querySelector("#content");
+  content = "";
+};
+
+var createMainMenu = function createMainMenu(csrf) {
+  var MainMenuWindow = React.createClass({
+    displayName: 'MainMenuWindow',
+
+    componentDidMount: clearScreen,
+    render: renderMainMenu
+  });
+
+  ReactDOM.render(React.createElement(MainMenuWindow, { csrf: csrf }), document.querySelector("#titleHere"));
+};
+
+var renderInstructions = function renderInstructions() {
+  return React.createElement(
+    'div',
+    { id: 'instructionsContent' },
+    React.createElement(
+      'div',
+      null,
+      'Goal: Get the most points, and don\'t get burned!'
+    ),
+    React.createElement(
+      'div',
+      null,
+      'Getting burned: You get burned by pressing the wrong button, or letting the timer hit the right side of the screen!'
+    ),
+    React.createElement(
+      'div',
+      null,
+      'Getting points: When you have the potate, press the buttons on the left side of the screen.'
+    ),
+    React.createElement(
+      'div',
+      null,
+      'Be warned: The more you press the correct buttons, the faster you have to react!'
+    ),
+    React.createElement(
+      'div',
+      null,
+      'Press the tab button to pass the potato to the next player and cool down!'
+    )
+  );
+};
+
+// displaying instructions
+var createInstructions = function createInstructions(csrf) {
+  var InstructionsWindow = React.createClass({
+    displayName: 'InstructionsWindow',
+
+    render: renderInstructions
+  });
+
+  ReactDOM.render(React.createElement(InstructionsWindow, { csrf: csrf }), document.querySelector("#content"));
+};
+
+var endGame = function endGame() {
+
+  var content = document.querySelector('#mainMessage');
+
+  ctx.clearRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
+
+  // increases the high score for better winner logic
+  if (finalData.score >= highScore) {
+    highScore = finalData.score;
+  }
+
+  if (finalData.hash === null && GameOver === false) {
+    content.innerHTML = 'Oh no, someone left!';
+  } else if (finalData.hash === finalData.myHash) {
+    var results = document.querySelector('#results');
+    results.innerHTML += '<div class="endingMessage">Player ' + finalData.num + ' got burned and lost!</div>';
+    if (finalData.hash === hash) content.innerHTML = 'You lose!';
+  } else if (finalData.hash !== null) {
+    if (myScore === 0) {
+      content.innerHTML = 'You lose!';
+    } else if (highScore <= myScore) {
+      highScore = myScore;
+      content.innerHTML = 'You win!';
+    } else {
+      content.innerHTML = 'You lived!';
+    }
+    GameOver = true;
+    var _results = document.querySelector('#results');
+    _results.innerHTML += '<div class="endingMessage">Player ' + finalData.num + '\'s score is: ' + finalData.score + '</div>';
+  }
+
+  console.log('removing canvas');
+  // turn off eventListeners
+  $('canvas').remove();
+  document.body.removeEventListener('keydown', keyDownHandler);
+  document.body.removeEventListener('keyup', keyUpHandler);
+
+  var playAgainButton = document.querySelector('#playAgain');
+  playAgainButton.innerHTML = '<input class="playAgain" type="button" value="Play Again?" />';
+  playAgainButton.onclick = playAgain;
+};
+
+var renderEndMessage = function renderEndMessage() {
+  return React.createElement(
+    'div',
+    null,
+    'Doopie doo'
+  );
+};
+
+// displaying instructions
+var createEndMessage = function createEndMessage(data) {
+
+  finalData = data;
+
+  var EndMessageWindow = React.createClass({
+    displayName: 'EndMessageWindow',
+
+    handleEndMessage: endGame,
+    render: renderEndMessage
+  });
+
+  ReactDOM.render(React.createElement(EndMessageWindow, { csrf: csrf }), document.querySelector("#content"));
+};
+
+var renderLogout = function renderLogout() {
+  return React.createElement(
+    'form',
+    { id: 'logoutForm',
+      onSubmit: this.handleLogout,
+      name: 'logoutForm',
+      action: '/logout',
+      method: 'GET',
+      className: 'logoutForm'
+    },
+    React.createElement(
+      'div',
+      { id: 'logoutMessage' },
+      'Are you sure you want to logout?'
+    ),
+    React.createElement('input', { className: 'logout', type: 'submit', value: 'Logout' })
+  );
+};
+
+// displaying instructions
+var createLogout = function createLogout(csrf) {
+  var LogoutWindow = React.createClass({
+    displayName: 'LogoutWindow',
+
+    handleLogout: logout,
+    render: renderLogout
+  });
+
+  ReactDOM.render(React.createElement(LogoutWindow, { csrf: csrf }), document.querySelector("#content"));
+};
+
+var logout = function logout() {
+  console.log('logout clicked');
+  sendAjaxHTML('GET', '/logout', null, redirect);
+};
+
+// main menu
+var mainMenu = function mainMenu() {
+  console.log('main menu');
+  var content = document.querySelector('#mainMessage');
+  content.innerHTML = "";
+};
+
+// reload the page
+var playAgain = function playAgain() {
+  console.log('reloading');
+  location.reload();
+};
+
+var init = function init(csrf) {
+
+  socket = io.connect();
+
+  socket.on('connect', function () {
+
+    socket.on('joined', setUser);
+    socket.on('passingToNext', passPotato);
+    socket.on('askPoints', sendPoints);
+    socket.on('endingGame', createEndMessage);
+
+    var joinButton = document.querySelector('#joinButton');
+    var instructionsButton = document.querySelector('#instructions');
+    var mainMenuButton = document.querySelector('#mainMenuButton');
+    var logoutButton = document.querySelector('#logoutButton');
+
+    createMainMenu(csrf);
+
+    mainMenuButton.addEventListener("click", function (e) {
+      e.preventDefault();
+      createMainMenu(csrf);
+      return false;
+    });
+
+    joinButton.addEventListener("click", function (e) {
+      e.preventDefault();
+      createSearchButton(csrf);
+      return false;
+    });
+
+    instructionsButton.addEventListener("click", function (e) {
+      e.preventDefault();
+      createInstructions(csrf);
+      return false;
+    });
+
+    logoutButton.addEventListener("click", function (e) {
+      e.preventDefault();
+      createLogout(csrf);
+      return false;
+    });
+  });
+};
+
+var getToken = function getToken() {
+  sendAjax("GET", "/getToken", null, function (result) {
+    init(result.csrfToken);
+  });
+};
+
+$(document).ready(function () {
+  getToken();
+});

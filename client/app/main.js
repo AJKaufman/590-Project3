@@ -186,7 +186,7 @@ const endGame = () => {
 const renderEndMessage = function() {
   return (
     
-      
+      <div>Doopie doo</div>
     );
 };
 
